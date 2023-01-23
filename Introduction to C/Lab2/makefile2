@@ -1,0 +1,2 @@
+Task2.o:
+	gcc -o Task2 Task2.c

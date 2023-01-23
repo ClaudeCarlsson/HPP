@@ -2,28 +2,30 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
-#def NDEBUG
+#define NDEBUG
+
 int is_prime(int n);
+double sqrt(double n);
+
 
 int main(){
-    
-    int n, nprimes;
+
+    int n, nprime;
     int *prime;
-    
+
     printf("Give a number: ");
     scanf("%d", &n);
     prime=(int *)malloc(n*sizeof(int));
-  
-    
+
     // Compute all primes
     prime[0]=2;nprime=1;
     for (int number=2;number<=n;number+=2){
         if (is_prime(number)){
             prime[nprime]=number;
-            nprime++
+            nprime++;
         }
-    
-    
+    }
+
     if (nprime<1000)
         for (int i=0;i<nprime;i++)
             printf("%d\n",prime[i]);
@@ -39,4 +41,8 @@ int is_prime(int n){
         }
     }
     return 1;
+}
+
+double sqrt(double n){
+    return (n * n);
 }

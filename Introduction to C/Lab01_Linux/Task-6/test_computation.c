@@ -7,8 +7,8 @@ int main()
 {
   int i, k;
   float sum = 0.0;
-  int N = 1000;
-  /* This is no interesting computation, just something to make the program bysy. */
+  int N = 100000000;
+  /* This is no interesting computation, just something to make the program busy. */
   for(k = 0; k < N; k++) {
     arr[0] = 1;
     for(i=1; i<size; i++)
