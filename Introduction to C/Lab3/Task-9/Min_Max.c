@@ -16,12 +16,14 @@ int main()
   scanf("%d",&n);
   printf("n = %d\n", n);
   double** matrixA = allocate_matrix(n);
+  double** matrixB = allocate_matrix(n);
   fill_matrix(matrixA, n);
   double minValue = get_min_value(matrixA, n);
   double maxValue = get_max_value(matrixA, n);
   //print_matrix(matrixA, n);
   printf("Min value: %14.9f  Max value: %14.9f\n", minValue, maxValue);
   deallocate_matrix(matrixA, n);
+  deallocate_matrix(matrixB,n);
   return 0;
 }
 
