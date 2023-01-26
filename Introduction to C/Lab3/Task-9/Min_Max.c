@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <time.h>
 
 double** allocate_matrix(int n);
 void deallocate_matrix(double** theMatrix, int n);
