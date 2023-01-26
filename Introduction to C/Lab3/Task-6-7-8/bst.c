@@ -30,18 +30,47 @@ void print_bst(node_t *node)
 
 void delete_tree(node_t **node)
 {
-  printf("ERROR: Function delete_tree is not implemented\n");
+    if (*node != NULL) {
+        delete_tree(&(*node)->left);
+        delete_tree(&(*node)->right);
+        free((*node)->name);
+        free(*node);
+        *node = NULL;
+    }
 }
 
 void insert(node_t **node, int ID, char *name)
 {
-  printf("ERROR: Function insert is not implemented\n");
+   if (*node == NULL) {
+      *node = malloc(sizeof(node_t));
+      (*node)->ID = ID;
+      (*node)->name = strdup(name);
+      (*node)->left = NULL;
+      (*node)->right = NULL;
+   } else {
+      if (ID < (*node)->ID) {
+         insert(&((*node)->left), ID, name);
+      } else {
+         insert(&((*node)->right), ID, name);
+      }
+   }
 }
-
 
 void search(node_t *node, int ID)
 {
-  printf("ERROR: Function search is not implemented\n");
+    if(node != NULL) {
+        if(ID == node->ID) {
+            printf("Name of the plant with ID %d is %s\n", ID, node->name);
+            return;
+        }
+        if(ID < node->ID) {
+            search(node->left, ID);
+        } else {
+            search(node->right, ID);
+        }
+    } else {
+        printf("No plant found with ID %d\n", ID);
+    }
 }
 
 
@@ -51,21 +80,20 @@ int main(int argc, char const *argv[])
    printf("Inserting nodes to the binary tree.\n");
 
    insert(&root, 445, "sequoia");
-/*
    insert(&root, 162, "fir");
    insert(&root, 612, "baobab");
    insert(&root, 845, "spruce");
    insert(&root, 862, "rose");
    insert(&root, 168, "banana");
    insert(&root, 225, "orchid");
-   insert(&root, 582, "chamomile");  */
+   insert(&root, 582, "chamomile"); 
 
    printf("Printing nodes of the tree.\n");
    print_bst(root);
 
 
-   //search(root, 168);
-   //search(root, 467);
+   search(root, 168);
+   search(root, 467);
 
    printf("Deleting tree.\n");
    delete_tree(&root);
