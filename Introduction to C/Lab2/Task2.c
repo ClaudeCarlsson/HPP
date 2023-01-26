@@ -5,10 +5,10 @@ int main() {
 	int b;
 
 	printf("Enter a: ");
-	scanf("%d", &a);
+	scanf(" %d", &a);
 
 	printf("Enter b: ");
-        scanf("%d", &b);
+    scanf(" %d", &b);
 
 
 	for (int i = a+2; i > 0; i = i - 1) {
