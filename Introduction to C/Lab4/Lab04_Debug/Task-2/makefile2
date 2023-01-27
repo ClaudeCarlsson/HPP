@@ -1,0 +1,16 @@
+CC = gcc
+CFLAGS = -c -Wall
+
+all: mymainprog
+
+mymainprog: mymainprog.o myfuncs.o
+	$(CC) mymainprog.o myfuncs.o -o mymainprog -g
+
+mymainprog.o: mymainprog.c myfuncs.h
+	$(CC) $(CFLAGS) mymainprog.c -g
+
+myfuncs.o: myfuncs.c myfuncs.h
+	$(CC) $(CFLAGS) myfuncs.c -g
+
+clean:
+	rm -rf *o mymainprog
