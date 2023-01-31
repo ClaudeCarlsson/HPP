@@ -3,6 +3,10 @@
         "string": "c",
         "array": "c",
         "initializer_list": "c",
-        "utility": "c"
+        "utility": "c",
+        "stdio.h": "c",
+        "stdlib.h": "c",
+        "chrono": "c",
+        "variant": "c"
     }
 }
