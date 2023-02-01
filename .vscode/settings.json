@@ -7,6 +7,7 @@
         "stdio.h": "c",
         "stdlib.h": "c",
         "chrono": "c",
-        "variant": "c"
+        "variant": "c",
+        "unistd.h": "c"
     }
 }
