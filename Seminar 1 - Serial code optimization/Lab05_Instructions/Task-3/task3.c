@@ -1,27 +1,32 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-int main(int argc, char **argv)
-{
-   int i;
-   float tiny = 1e-35;
-
-   printf("%e\n", tiny);
+int main() {
+   float epsilon = 1.0f;
+   float result;
+   int count = 0;
    
-   /* Inside the loop we do some computations modifying the "tiny"
-      variable in such a way that it is (almost) restored to the same
-      value again in each loop iteration. The value will probably
-      change slightly due to rounding errors. */
-   for (i=0; i<5000000; i++)
-   {
-      tiny += tiny/2.0;
-      tiny *= 0.666667;
-      tiny += tiny/2.0;
-      tiny *= 0.666667;
-      tiny += tiny/2.0;
-      tiny *= 0.666666;
+   while (epsilon + 1.0f > 1.0f) {
+      result = epsilon + 1.0f;
+      epsilon *= 0.5f;
+      count++;
    }
-   printf("%e\n", tiny);
+   
+   printf("The smallest representable value of epsilon is %e\n", epsilon);
+   printf("The result of adding epsilon to 1 became exactly 1 after %d iterations\n", count);
 
+
+   double depsilon = 1.0;
+   double dresult;
+   count = 0;
+   
+   while (depsilon + 1.0 > 1.0) {
+      dresult = depsilon + 1.0;
+      depsilon *= 0.5;
+      count++;
+   }
+   
+   printf("The smallest representable value of epsilon is %e\n", depsilon);
+   printf("The result of adding epsilon to 1 became exactly 1 after %d iterations\n", count);
+   
    return 0;
 }
