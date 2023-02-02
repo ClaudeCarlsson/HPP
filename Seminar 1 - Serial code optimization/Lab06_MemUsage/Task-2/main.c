@@ -10,7 +10,7 @@ static double get_wall_seconds() {
   return seconds;
 }
 
-static int count_values(const intType* list, int n, intType x) {
+static int count_values(const intType* list, int  n, intType x) {
   int count = 0;
   int i;
   for(i = 0; i < n; i++) {

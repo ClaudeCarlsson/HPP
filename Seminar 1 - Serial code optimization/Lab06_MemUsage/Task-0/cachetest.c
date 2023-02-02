@@ -44,12 +44,12 @@ void ModifyLow(StructType* p, long int a) {
 }
 
 int main() {
-  int n = 200;
+  int n = 50;
   StructType* arrOfStructs;
   int nBytesToAllocate = n*sizeof(StructType);
   printf("nBytesToAllocate = %d\n", nBytesToAllocate);
   arrOfStructs = (StructType*)malloc(nBytesToAllocate);
-  int m = 500000;
+  int m = 2000000;
   long int a;
   a = 1 + (((long int)rand()*3)/RAND_MAX);
   printf("a = %ld\n", a);
@@ -61,7 +61,7 @@ int main() {
     for(j = 0; j < n; j++)
       ModifyWithStep8(&arrOfStructs[j], a);
 #else
-  for(i = 0; i < m; i++)
+  for(i = 0; i < m; i++) // Faster!
     for(j = 0; j < n; j++)
       ModifyLow(&arrOfStructs[j], a);
 #endif

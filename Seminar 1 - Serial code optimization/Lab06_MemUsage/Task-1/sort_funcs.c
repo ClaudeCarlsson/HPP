@@ -22,8 +22,13 @@ void merge_sort(int* list_to_sort, int N) {
   int n1 = N / 2;
   int n2 = N - n1;
   // Allocate new lists
-  int* list1 = (int*)malloc(n1*sizeof(int));
-  int* list2 = (int*)malloc(n2*sizeof(int));
+  //int* buffer = (int*)malloc((N)*sizeof(int));
+  // Set list1 and list2 to point into the buffer
+  //int* list1 = buffer;
+  //int* list2 = buffer + n1;
+  // Place list1 and list2 buffers on the stack
+  int list1[n1];
+  int list2[n2];
   int i;
   for(i = 0; i < n1; i++)
     list1[i] = list_to_sort[i];
@@ -51,7 +56,6 @@ void merge_sort(int* list_to_sort, int N) {
     list_to_sort[i++] = list1[i1++];
   while(i2 < n2)
     list_to_sort[i++] = list2[i2++];
-  free(list1);
-  free(list2);
+  //free(buffer);
 }
 

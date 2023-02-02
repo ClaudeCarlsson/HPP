@@ -10,7 +10,7 @@ void do_transpose_x_standard (double** B, int nB, const double* A, int N) {
 }
 
 void do_transpose_x_optimized(double** B, int nB, const double* A, int N) {
-  const int blockSz = 100;
+  const int blockSz = 120;
   double subMat[blockSz*blockSz];
   if(N % blockSz != 0) {
     printf("Error: N not divisible by blockSz.\n");

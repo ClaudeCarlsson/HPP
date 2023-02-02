@@ -37,12 +37,22 @@ void free_mem(int** arr, int n)
 /* kij */
 void mul_kij(int n, int **a, int **b, int **c)
 {
-  int i, j, k;
-  for (k=0; k<n; k++) {
-    for (i=0; i<n; i++) {
-      int x = a[i][k];
-      for (j=0; j<n; j++)
-	c[i][j] += x * b[k][j];   
+  int block_size = 100;
+  int i, j, k, i1, j1, k1;
+  for (k = 0; k < n; k += block_size)
+  {
+    for (i = 0; i < n; i += block_size)
+    {
+      for (j = 0; j < n; j += block_size)
+      {
+        for (k1 = k; k1 < k + block_size && k1 < n; k1++)
+        {
+          int x = a[i][k1];
+          for (i1 = i; i1 < i + block_size && i1 < n; i1++)
+            for (j1 = j; j1 < j + block_size && j1 < n; j1++)
+              c[i1][j1] += x * b[k1][j1];
+        }
+      }
     }
   }
 }
