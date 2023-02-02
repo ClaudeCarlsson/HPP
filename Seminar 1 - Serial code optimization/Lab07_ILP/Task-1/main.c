@@ -14,7 +14,7 @@ static double get_wall_seconds() {
 
 int main (int argc, char**args) {
 
-  // Prepare input and output buffers for tests
+  // prepare input and output buffers for tests
   const int N1 = 200;
   const int N_extra = 20; // Allocate some extra elements to use for checking that no elements outside N1 are modified.
   const int N1mod = N1 + N_extra;
