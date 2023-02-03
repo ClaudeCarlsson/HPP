@@ -1,0 +1,37 @@
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-4$ time ./lookup
+myFact = 5040
+
+real    0m0,112s
+user    0m0,111s
+sys     0m0,001s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-4$ time ./math_functions
+7071.067871
+
+real    0m0,400s
+user    0m0,392s
+sys     0m0,009s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-4$ time ./memset
+diffFound = 0
+
+real    0m0,067s
+user    0m0,061s
+sys     0m0,006s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-4$ time ./strength_reduction 
+1 2 3 1, 0.100000 0.500000 0.330000
+Floating point exception (core dumped)
+
+real    0m0,195s
+user    0m0,010s
+sys     0m0,008s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-4$ time ./timings 
+sum1 = 1.103332
+secondsTaken1 = 0.001467
+sum2 = 2.333332
+secondsTaken2 = 0.013756
+sum3 = 44.333327
+secondsTaken3 = 0.099545
+totalTimeTaken = 0.114784
+
+real    0m0,129s
+user    0m0,122s
+sys     0m0,007s

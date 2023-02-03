@@ -1,0 +1,56 @@
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-0$ time ./cachetest 
+nBytesToAllocate = 25600
+a = 3
+sum = 2400000000
+
+real    0m0,363s
+user    0m0,350s
+sys     0m0,013s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-0$ make
+gcc -O2 -c cachetest.c
+gcc  cachetest.o -o cachetest
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-0$ time ./cachetest 
+nBytesToAllocate = 25600
+a = 3
+sum = 2400000000
+
+real    0m0,363s
+user    0m0,351s
+sys     0m0,012s
+
+
+
+for 200
+
+
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-0$ make
+gcc -O2 -c cachetest.c
+gcc  cachetest.o -o cachetest
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-0$ time ./cachetest 
+nBytesToAllocate = 102400
+a = 3
+sum = 9600000000
+
+real    0m8,707s
+user    0m8,700s
+sys     0m0,006s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-0$ make
+gcc -O2 -c cachetest.c
+gcc  cachetest.o -o cachetest
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-0$ time ./cachetest 
+nBytesToAllocate = 102400
+a = 3
+sum = 9600000000
+
+real    0m2,721s
+user    0m2,715s
+sys     0m0,007s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-0$ 
+
+
+
+
+  L1d:                   256 KiB (8 instances)
+  L1i:                   256 KiB (8 instances)
+  L2:                    2 MiB (8 instances)
+  L3:                    16 MiB (2 instances)

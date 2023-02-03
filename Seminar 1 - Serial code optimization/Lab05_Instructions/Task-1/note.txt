@@ -1,0 +1,19 @@
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-1$ time ./array_loop
+zi = 1234
+
+real    0m0,842s
+user    0m0,833s
+sys     0m0,009s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-1$ time ./string_loop 
+done
+
+real    0m0,958s
+user    0m0,952s
+sys     0m0,007s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-1$ time ./loop_invariants 
+fast
+Done. sum = 649785664285041.375
+
+real    0m1,033s
+user    0m0,407s
+sys     0m0,626s

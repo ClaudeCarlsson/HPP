@@ -1,0 +1,9 @@
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-7$ time ./matmul 
+Enter the dimension of matrices n = 500
+Version kij, time = 0.091540
+Version ijk, time = 0.316961
+Version jik, time = 0.317496
+
+real    0m5,138s
+user    0m0,762s
+sys     0m0,002s

@@ -1,0 +1,19 @@
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-0$ time ./threadedcode
+main thread result :      1.0000499600361
+other thread result:      1.0000499600361
+
+real    0m2,528s
+user    0m5,038s
+sys     0m0,004s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-0$ time ./mallocycode
+     1.0000059952043
+
+real    0m3,368s
+user    0m2,973s
+sys     0m0,395s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-0$ time ./regularcode
+     1.0000499600361
+
+real    0m2,527s
+user    0m2,524s
+sys     0m0,004s

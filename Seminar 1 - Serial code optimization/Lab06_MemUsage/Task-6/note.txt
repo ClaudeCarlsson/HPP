@@ -1,0 +1,19 @@
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-6$ time ./pure_test 
+Result sum: 838134976
+Function call counter: 400000000
+
+real    0m7,368s
+user    0m7,358s
+sys     0m0,011s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-6$ make
+gcc -O3 -Wall -Werror -c main.c 
+gcc -O3 -Wall -Werror -c func.c
+gcc  main.o func.o -o pure_test
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-6$ time ./pure_test 
+Result sum: 838134976
+Function call counter: 20000
+
+real    0m0,017s
+user    0m0,012s
+sys     0m0,006s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-6$ 

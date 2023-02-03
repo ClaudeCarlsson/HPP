@@ -1,0 +1,24 @@
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-2$ time ./short-circuit
+foo = 5
+
+real    0m0,230s
+user    0m0,228s
+sys     0m0,002s
+
+
+
+
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-2$ time ./bounds
+
+real    0m0,013s
+user    0m0,011s
+sys     0m0,003s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-2$ make
+gcc -O2 -fverbose-asm bounds.c -S bounds.s
+gcc -O2 -fverbose-asm short-circuit.c -S short-circuit.s
+gcc -O2 bounds.c -o bounds
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-2$ time ./bounds
+
+real    0m0,013s
+user    0m0,010s
+sys     0m0,003s

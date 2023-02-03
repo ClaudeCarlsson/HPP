@@ -1,0 +1,10 @@
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-2$ time ./sort_test 255555
+N = 255555
+Before sort: the number 7 occurs 2478 times in the list.
+Sorting list with length 255555 took   0.058 wall seconds.
+After sort : the number 7 occurs 2478 times in the list.
+OK, list is sorted!
+
+real    0m0,084s
+user    0m0,076s
+sys     0m0,009s

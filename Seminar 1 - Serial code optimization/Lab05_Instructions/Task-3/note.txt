@@ -1,0 +1,60 @@
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-3$ time ./norms
+1.000000e-35
+9.999999e-36
+
+real    0m0,175s
+user    0m0,172s
+sys     0m0,004s
+
+
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-3$ time ./denorms
+1.000000e-39
+9.999960e-40
+
+real    0m3,982s
+user    0m3,975s
+sys     0m0,008s
+
+
+
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-3$ time ./small
+x = 1.000000e+02
+x = 1.000000e+04
+x = 1.000000e+06
+x = 1.000000e+08
+x = 1.000000e+10
+x = 1.000000e+12
+x = 1.000000e+14
+x = 1.000000e+16
+x = 1.000000e+18
+x = 1.000000e+20
+x = 1.000000e+22
+x = 1.000000e+24
+x = 1.000000e+26
+x = 1.000000e+28
+x = 1.000000e+30
+x = 1.000000e+32
+x = 1.000000e+34
+x = 1.000000e+36
+x = 1.000000e+38
+x = inf
+x became INF at iteration 19
+Testing NaN:
+sqrt(-1.0f) = NaN
+Testing operations on NaN:
+NaN + 1.0f = NaN
+Testing operations on INF:
+INF + 1.0f = inf
+
+real    0m0,014s
+user    0m0,011s
+sys     0m0,004s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab05_Instructions/Task-3$ time ./task3
+The smallest representable value of epsilon is 5.960464e-08
+The result of adding epsilon to 1 became exactly 1 after 24 iterations
+The smallest representable value of epsilon is 1.110223e-16
+The result of adding epsilon to 1 became exactly 1 after 53 iterations
+
+real    0m0,014s
+user    0m0,010s
+sys     0m0,004s

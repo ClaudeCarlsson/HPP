@@ -1,0 +1,30 @@
+How does this affect the performance? Worse
+
+One reason is that the memory allocations (malloc() calls) will
+probably become more expensive because there is a larger strain on the operating
+system’s memory management system. Another reason is less efficient cache usage:
+if we never call free, each malloc call will give us a completely new memory block
+that has not been used before, so it will not be in cache. On the other hand, if we
+free the old memory blocks before allocating new ones, it is likely that we will often
+be working with partly the same memory addresses, so there is a better chance that
+the memory addresses we are using will already be in cache.
+
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-1$ time ./sort_test 2500000
+N = 2500000
+Before sort: the number 7 occurs 2474 times in the list.
+Segmentation fault (core dumped)
+
+real    0m0,257s
+user    0m0,083s
+sys     0m0,009s
+
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-1$ time ./sort_test 1000000
+N = 1000000
+Before sort: the number 7 occurs 985 times in the list.
+Sorting list with length 1000000 took   0.152 wall seconds.
+After sort : the number 7 occurs 985 times in the list.
+OK, list is sorted!
+
+real    0m0,209s
+user    0m0,194s
+sys     0m0,017s

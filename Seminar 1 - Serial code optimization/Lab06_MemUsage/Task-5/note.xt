@@ -1,0 +1,21 @@
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-5$ time ./transpose_test
+Checking correctness: max_abs_diff =        0
+OK, result seems correct.
+do_transpose_mod_standard 1 times for N=9000 took   1.744 wall seconds.
+do_transpose_mod_optimized 1 times for N=9000 took   0.399 wall seconds.
+
+real    0m7,733s
+user    0m6,717s
+sys     0m1,016s
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-5$ make
+gcc -O3 -Wall -Werror -c transpose.c
+gcc  main.o transpose.o -o transpose_test
+clca8136@barany:~/HPP/Seminar 1 - Serial code optimization/Lab06_MemUsage/Task-5$ time ./transpose_test
+Checking correctness: max_abs_diff =        0
+OK, result seems correct.
+do_transpose_mod_standard 1 times for N=9000 took   1.751 wall seconds.
+do_transpose_mod_optimized 1 times for N=9000 took   0.438 wall seconds.
+
+real    0m7,772s
+user    0m6,705s
+sys     0m1,067s
