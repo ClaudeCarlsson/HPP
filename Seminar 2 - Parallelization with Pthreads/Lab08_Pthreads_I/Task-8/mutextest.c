@@ -2,13 +2,22 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-long int sum = 0;
 int N = 100000;
 
-void* the_thread_func(void* arg) {
+struct params {
+  long int *sum;
+  pthread_mutex_t *mutex;
+};
 
-  for(int i = 1; i <= N; ++i)
-  	sum += 1;
+void* the_thread_func(void* arg) {
+  struct params *p = (struct params *)arg;
+  long int *sum = p->sum;
+  pthread_mutex_t *mutex = p->mutex;
+  for(int i = 1; i <= N; ++i) {
+    pthread_mutex_lock(mutex);
+  	(*sum)++;
+    pthread_mutex_unlock(mutex);
+  }
 
   return NULL;
 }
@@ -24,8 +33,14 @@ int main(int argc, char **argv) {
   /* Start thread. */
   printf("the main() function now calling pthread_create().\n");
   pthread_t threads[N];
-  for(int i = 0; i < N; i++)
-    pthread_create(&threads[i], NULL, the_thread_func, NULL);
+  struct params p[N];
+  long int sum = 0;
+  pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+  for(int i = 0; i < N; i++) {
+    p[i].sum = &sum;
+    p[i].mutex = &mutex;
+    pthread_create(&threads[i], NULL, the_thread_func, &p[i]);
+  }
 
   printf("This is the main() function after pthread_create()\n");
 
@@ -36,6 +51,9 @@ int main(int argc, char **argv) {
     pthread_join(threads[i], NULL);
 
   printf("sum = %ld\n", sum); 
+  
+  /* Clean up the mutex. */
+  pthread_mutex_destroy(&mutex);
 
   return 0;
 }

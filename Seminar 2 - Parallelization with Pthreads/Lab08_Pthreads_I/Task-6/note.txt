@@ -1,0 +1,38 @@
+clca8136@barany:~/HPP/Seminar 2 - Parallelization with Pthreads/Lab08_Pthreads_I/Task-6$ time ./threaded_computation 
+Enter the value of M: 250000
+Enter the number of threads: 1
+There are 22044 prime numbers between 1 and 250000
+
+real    0m15,586s
+user    0m12,069s
+sys     0m0,003s
+
+
+clca8136@barany:~/HPP/Seminar 2 - Parallelization with Pthreads/Lab08_Pthreads_I/Task-6$ time ./threaded_computation 
+Enter the value of M: 250000
+Enter the number of threads: 8
+There are 22044 prime numbers between 1 and 250000
+
+real    0m6,834s
+user    0m12,154s
+sys     0m0,007s
+
+
+clca8136@barany:~/HPP/Seminar 2 - Parallelization with Pthreads/Lab08_Pthreads_I/Task-6$ time ./threaded_computation 
+Enter the value of M: 250000
+Enter the number of threads: 16
+There are 22044 prime numbers between 1 and 250000
+
+real    0m6,365s
+user    0m19,998s
+sys     0m0,003s
+
+
+clca8136@barany:~/HPP/Seminar 2 - Parallelization with Pthreads/Lab08_Pthreads_I/Task-6$ time ./threaded_computation 
+Enter the value of M: 250000
+Enter the number of threads: 32
+There are 22039 prime numbers between 1 and 250000
+
+real    0m9,501s
+user    0m24,817s
+sys     0m0,009s

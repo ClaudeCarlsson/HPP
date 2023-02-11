@@ -1,0 +1,16 @@
+clca8136@barany:~/HPP/Seminar 2 - Parallelization with Pthreads/Lab08_Pthreads_I/Task-4$ time ./threaded_computation 
+Enter the value of M: 500000
+There are 41538 prime numbers between 1 and 500000
+
+real    0m35,769s
+user    0m45,550s
+sys     0m0,008s
+
+
+clca8136@barany:~/HPP/Seminar 2 - Parallelization with Pthreads/Lab08_Pthreads_I/Task-4$ time ./computation 
+Enter the value of M: 500000
+There are 41538 prime numbers between 1 and 500000
+
+real    0m47,479s
+user    0m45,564s
+sys     0m0,004s

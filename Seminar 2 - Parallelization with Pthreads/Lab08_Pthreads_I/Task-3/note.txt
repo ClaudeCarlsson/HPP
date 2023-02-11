@@ -1,0 +1,30 @@
+const long int N1 = 400000000;
+const long int N2 = 400000000;
+
+sum computed by main() : 2800000000
+sum computed by thread : 2800000000
+totalSum : 5600000000
+
+Total time: 1.122921 
+
+--------------------------------------
+
+const long int N1 = 100000000;
+const long int N2 = 700000000;
+
+sum computed by main() : 700000000
+sum computed by thread : 4900000000
+totalSum : 5600000000
+
+Total time: 1.958329 
+
+--------------------------------------
+
+const long int N1 = 700000000;
+const long int N2 = 100000000;
+
+sum computed by main() : 4900000000
+sum computed by thread : 700000000
+totalSum : 5600000000
+
+Total time: 2.055579 

@@ -2,6 +2,7 @@
     "files.associations": {
         "functional": "c",
         "math.h": "c",
-        "testfuncs.h": "c"
+        "testfuncs.h": "c",
+        "time.h": "c"
     }
 }
