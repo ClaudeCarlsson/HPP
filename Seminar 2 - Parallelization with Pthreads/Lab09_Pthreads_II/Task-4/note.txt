@@ -1,0 +1,180 @@
+Run 1, no change
+Hello World! 0
+Hello World! 1
+Hello World! 2
+Hello World! 3
+Hello World! 4
+Hello World! 5
+Hello World! 6
+Hello World! 7
+Bye Bye World! 7
+Bye Bye World! 1
+Bye Bye World! 0
+Bye Bye World! 3
+Bye Bye World! 4
+Bye Bye World! 5
+Bye Bye World! 2
+Bye Bye World! 6
+
+Run 2, removed barrier();
+Hello World! 0
+Bye Bye World! 0
+Hello World! 2
+Bye Bye World! 2
+Hello World! 1
+Bye Bye World! 1
+Hello World! 3
+Bye Bye World! 3
+Hello World! 4
+Bye Bye World! 4
+Hello World! 5
+Bye Bye World! 5
+Hello World! 6
+Bye Bye World! 6
+Hello World! 7
+Bye Bye World! 7
+
+# Barrier locks going forward in the HelloWorld function. 
+
+Run 1, no change 
+Hello World! 0
+Hello World! 1
+Hello World! 2
+Hello World! 3
+Hello World! 4
+Hello World! 5
+Hello World! 6
+Hello World! 7
+Bye Bye World! 2
+Bye Bye World! 6
+Bye Bye World! 0
+Bye Bye World! 1
+Bye Bye World! 7
+Bye Bye World! 3
+Bye Bye World! 5
+Bye Bye World! 4
+
+Run 2, with -O3 flag
+Hello World! 0
+Hello World! 1
+Hello World! 2
+Hello World! 3
+Hello World! 4
+Hello World! 5
+Hello World! 6
+Hello World! 7
+Bye Bye World! 7
+
+# seems to be stuck, 
+In C, the volatile keyword is used to indicate to the compiler 
+that a variable's value may change at any time, even if the 
+code does not explicitly modify it. This tells the compiler that 
+it should not optimize code that depends on the value of the variable, 
+and that it should always read the variable from memory instead of 
+relying on a cached value.
+
+Run 3, with volatile 
+Hello World! 0
+Hello World! 1
+Hello World! 2
+Hello World! 3
+Hello World! 4
+Hello World! 5
+Hello World! 6
+Hello World! 7
+Bye Bye World! 3
+Bye Bye World! 1
+Bye Bye World! 7
+Bye Bye World! 2
+Bye Bye World! 4
+Bye Bye World! 5
+Bye Bye World! 6
+Bye Bye World! 0
+
+Assembly with -O1 and without volatile
+barrier:
+.LFB40:
+	.cfi_startproc
+	endbr64
+	pushq	%rbx
+	.cfi_def_cfa_offset 16
+	.cfi_offset 3, -16
+	leaq	lock(%rip), %rdi
+	call	pthread_mutex_lock@PLT
+	movl	state(%rip), %ebx
+	movl	waiting(%rip), %eax
+	cmpl	$7, %eax
+	je	.L2
+	leal	1(%rax), %edx
+	movl	%edx, waiting(%rip)
+.L3:
+	leaq	lock(%rip), %rdi
+	call	pthread_mutex_unlock@PLT
+	movl	state(%rip), %eax
+.L4:
+	cmpl	%ebx, %eax
+	je	.L4
+	popq	%rbx
+	.cfi_remember_state
+	.cfi_def_cfa_offset 8
+	ret
+.L2:
+	.cfi_restore_state
+	movl	$0, waiting(%rip)
+	movl	$1, %eax
+	subl	%ebx, %eax
+	movl	%eax, state(%rip)
+	jmp	.L3
+	.cfi_endproc
+
+Same with volatile
+barrier:
+.LFB40:
+	.cfi_startproc
+	endbr64
+	pushq	%rbx
+	.cfi_def_cfa_offset 16
+	.cfi_offset 3, -16
+	leaq	lock(%rip), %rdi
+	call	pthread_mutex_lock@PLT
+	movl	state(%rip), %ebx
+	movl	waiting(%rip), %eax
+	cmpl	$7, %eax
+	je	.L2
+	leal	1(%rax), %edx
+	movl	%edx, waiting(%rip)
+.L3:
+	leaq	lock(%rip), %rdi
+	call	pthread_mutex_unlock@PLT
+.L4:
+	movl	state(%rip), %eax
+	cmpl	%ebx, %eax
+	je	.L4
+	popq	%rbx
+	.cfi_remember_state
+	.cfi_def_cfa_offset 8
+	ret
+.L2:
+	.cfi_restore_state
+	movl	$0, waiting(%rip)
+	movl	$1, %eax
+	subl	%ebx, %eax
+	movl	%eax, state(%rip)
+	jmp	.L3
+	.cfi_endproc
+
+
+In the first assembly code snippet provided, 
+the value of state is read from memory twice - 
+once before the while loop, and once inside the loop. 
+This is because the compiler does not assume that 
+the value of state has not changed during the 
+execution of the loop, due to the volatile keyword.
+
+In the second assembly code snippet provided, 
+the value of state is only read from memory once, 
+before the loop. This is because the compiler 
+is allowed to optimize the loop, since it does 
+not assume that the value of state can change 
+during the execution of the loop, as it is not 
+marked as volatile.

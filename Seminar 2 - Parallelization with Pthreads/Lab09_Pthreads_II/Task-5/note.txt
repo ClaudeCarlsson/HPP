@@ -1,0 +1,45 @@
+clca8136@barany:~/HPP/Seminar 2 - Parallelization with Pthreads/Lab09_Pthreads_II/Task-5$ time ./pi 
+Please enter the amount of threads: 1
+PI is approximate: 3.1415926535899894 with 1 threads.
+Difference: 1.962874e-13
+
+real    0m4,878s
+user    0m4,600s
+sys     0m0,000s
+
+
+
+
+clca8136@barany:~/HPP/Seminar 2 - Parallelization with Pthreads/Lab09_Pthreads_II/Task-5$ time ./pi 
+Please enter the amount of threads: 2
+PI is approximate: 3.1415926535895977 with 2 threads.
+Difference: -1.953993e-13
+
+real    0m2,611s
+user    0m4,615s
+sys     0m0,003s
+
+
+
+
+
+clca8136@barany:~/HPP/Seminar 2 - Parallelization with Pthreads/Lab09_Pthreads_II/Task-5$ time ./pi 
+Please enter the amount of threads: 4
+PI is approximate: 3.1415926535898682 with 4 threads.
+Difference: 7.505108e-14
+
+real    0m1,484s
+user    0m4,624s
+sys     0m0,001s
+
+
+
+
+clca8136@barany:~/HPP/Seminar 2 - Parallelization with Pthreads/Lab09_Pthreads_II/Task-5$ time ./pi 
+Please enter the amount of threads: 8
+PI is approximate: 3.1415926535898322 with 8 threads.
+Difference: 3.907985e-14
+
+real    0m0,869s
+user    0m4,694s
+sys     0m0,001s
