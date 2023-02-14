@@ -72,20 +72,10 @@ InputFile read_file(const char *filename)
 
 void get_file_contents(InputFile input_file, Particle *p, int N)
 {
-    double *file_contents = malloc(N * 6 * sizeof(double));
-    fread(file_contents, sizeof(double), N * 6, input_file.file);
-
     for (int i = 0; i < N; i++)
     {
-        p[i].x = file_contents[i * 6];
-        p[i].y = file_contents[i * 6 + 1];
-        p[i].mass = file_contents[i * 6 + 2];
-        p[i].vx = file_contents[i * 6 + 3];
-        p[i].vy = file_contents[i * 6 + 4];
-        p[i].brightness = file_contents[i * 6 + 5];
+        fread(&p[i], sizeof(Particle), N * 6, input_file.file);
     }
-
-    free(file_contents);
 }
 
 Particle *load_particles(InputData input)
