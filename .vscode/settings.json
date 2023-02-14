@@ -3,6 +3,7 @@
         "functional": "c",
         "math.h": "c",
         "testfuncs.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "stdlib.h": "c"
     }
 }

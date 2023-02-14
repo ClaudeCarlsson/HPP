@@ -4,7 +4,7 @@ pthread_join to reclaim the resources used by the thread,
 whereas  detached threads release their resources 
 automatically when they terminate. Additionally, if a 
 joinable thread is not explicitly joined with another 
-thread, it can lead to resource leaks  or other 
+thread, it can lead to resource leaks or other 
 issues in the program. 
 
 Therefore, it is generally recommended to use detached 
