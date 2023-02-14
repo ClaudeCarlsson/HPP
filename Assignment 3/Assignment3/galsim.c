@@ -52,7 +52,7 @@ InputData get_inputs(char const *argv[])
     input.nsteps = atoi(argv[3]);
     input.delta_t = atof(argv[4]);
     input.graphics = atoi(argv[5]);
-    input.G = 100 / input.N;
+    input.G = (double) 100 / input.N;
     return input;
 }
 
@@ -185,13 +185,14 @@ void start_system(Particle *p, InputData input)
         {
             draw_particles(p, input.N, circleRadius, circleColor, L, W);
         }
-        // print_particle(p, input.N);
+
         update_particles(p, input);
+
         usleep(300);
     }
 }
 
-FILE* init_output_file()
+FILE *init_output_file()
 {
     FILE *file = fopen("result.gal", "wb");
     return file;
@@ -208,8 +209,6 @@ void write_to_output_file(Particle *p, int N)
 
     fclose(output);
 }
-
-
 
 int main(int argc, char const *argv[])
 {
@@ -232,7 +231,7 @@ int main(int argc, char const *argv[])
     Particle *particles = load_particles(input);
 
     // Print particles printf("\033[2J\033[1;1H");
-    print_particle(particles, input.N);
+    // print_particle(particles, input.N);
 
     // Check graphics
     if (input.graphics)
@@ -243,7 +242,7 @@ int main(int argc, char const *argv[])
     // Start system
     start_system(particles, input);
 
-    // Initialize output file
+    // Write a result file
     write_to_output_file(particles, input.N);
 
     // Quit graphics if enabled
