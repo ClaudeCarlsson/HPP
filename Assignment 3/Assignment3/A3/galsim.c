@@ -219,10 +219,6 @@ int main(int argc, char const *argv[])
 
     // Load particles
     Particle *particles = load_particles(input);
-    if (particles == NULL) {
-        printf("test");
-        return -1;
-    }
 
     // Print particles
     // print_particle(particles, input.N);
