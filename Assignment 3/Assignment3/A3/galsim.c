@@ -51,17 +51,18 @@ InputData get_inputs(const char *argv[])
 
 Particle *load_particles(const InputData input)
 {
-    Particle *p = malloc(input.N * sizeof(Particle));
+    
     FILE *file = fopen(input.filename, "rb");
     if(!file)
     {
-        printf("Error in load_particles, couldn't open file: %s\n",input.filename);
-        free(p);
+        printf("Error in load_particles(), couldn't open file: %s\n",input.filename);
         exit(-1);
     }
+
+    Particle *p = malloc(input.N * sizeof(Particle));
     if(!fread(p, sizeof(Particle), input.N * 6, file)) 
     {
-        printf("Error in load_particles, couldn't open file: %s\n",input.filename);
+        printf("Error in load_particles(), couldn't open file: %s\n",input.filename);
         fclose(file);
         free(p);
         exit(-1);
