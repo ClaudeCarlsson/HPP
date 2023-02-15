@@ -25,28 +25,22 @@ typedef struct
 
 typedef struct
 {
-    double x;
-    double y;
+    double x, y;
 } Force;
 
 typedef struct
 {
-    double x;
-    double y;
+    double x, y;
 } Acceleration;
 
 typedef struct
 {
-    double x;
-    double y;
-    double abs;
-    double abs_eps_3pow;
+    double x, y, abs, abs_eps_3pow;
 } Distance;
 
 typedef struct
 {
-    double x;
-    double y;
+    double x, y;
 } Position;
 
 InputData get_inputs(char const *argv[])
