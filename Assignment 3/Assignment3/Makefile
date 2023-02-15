@@ -1,4 +1,4 @@
-CFLAGS=-Wall -O3 -funroll-loops -ffast-math -march=native -Wwrite-strings -Werror=write-strings
+CFLAGS=-Wall -O3 -funroll-loops -ffast-math -march=native -flto 
 INCLUDES=-I/opt/X11/include
 LDFLAGS=-L/opt/X11/lib -lX11 -lm
 

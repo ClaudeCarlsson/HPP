@@ -14,8 +14,18 @@ typedef struct
 
 typedef struct
 {
+    double x, y;
+} Position;
+
+typedef struct
+{
     double x, y, mass, vx, vy, brightness;
 } Particle;
+
+typedef struct
+{
+    double x, y, abs, abs_eps_3pow;
+} Distance;
 
 typedef struct
 {
@@ -27,17 +37,7 @@ typedef struct
     double x, y;
 } Acceleration;
 
-typedef struct
-{
-    double x, y, abs, abs_eps_3pow;
-} Distance;
-
-typedef struct
-{
-    double x, y;
-} Position;
-
-InputData get_inputs(char const *argv[])
+InputData get_inputs(const char *argv[])
 {
     InputData input;
     input.N = atoi(argv[1]);
@@ -49,22 +49,17 @@ InputData get_inputs(char const *argv[])
     return input;
 }
 
-Particle *load_particles(InputData input)
+Particle *load_particles(const InputData input)
 {
-    FILE *file = fopen(input.filename, "rb");
-
     Particle *p = malloc(input.N * sizeof(Particle));
-    for (int i = 0; i < input.N; i++)
-    {
-        fread(&p[i], sizeof(Particle), input.N * 6, file);
-    }
-
+    FILE *file = fopen(input.filename, "rb");
+    fread(p, sizeof(Particle), input.N * 6, file);
     fclose(file);
 
     return p;
 }
 
-int check_input_count(int argc)
+int check_input_count(const int argc)
 {
     if (argc == 6)
     {
@@ -76,7 +71,7 @@ int check_input_count(int argc)
     }
 }
 
-void print_input(InputData input)
+void print_input(const InputData input)
 {
     printf("Input values:\n");
     printf("N = %d\n", input.N);
@@ -104,17 +99,18 @@ void initialize_graphics()
     SetCAxes(0, 1);
 }
 
-void update_particles(Particle *p, InputData input)
+void update_particles(Particle *p, const InputData input)
 {
+    Distance r = {0, 0, 0};
+    Force f = {0, 0};
+    Acceleration a = {0, 0};
     Position *pos = malloc(input.N * sizeof(Position));
     double temp = 0;
 
     for (int i = 0; i < input.N; i++)
     {
-        Distance r = {0, 0, 0, 0};
-        Force f = {0, 0};
-        Acceleration a = {0, 0};
-
+        f.x = 0;
+        f.y = 0;
         for (int j = 0; j < input.N; j++)
         {
             if (i == j)
@@ -141,8 +137,8 @@ void update_particles(Particle *p, InputData input)
         a.y = f.y * temp;
 
         // Velocity
-        p[i].vx = p[i].vx + input.delta_t * a.x;
-        p[i].vy = p[i].vy + input.delta_t * a.y;
+        p[i].vx += input.delta_t * a.x;
+        p[i].vy += input.delta_t * a.y;
 
         // Position
         pos[i].x = p[i].x + input.delta_t * p[i].vx;
@@ -159,7 +155,7 @@ void update_particles(Particle *p, InputData input)
     free(pos);
 }
 
-void draw_particles(Particle *p, int N, float c_rad, float c_col, float L, float W)
+void draw_particles(Particle *p, const int N, const float c_rad, const float c_col, const float L, const float W)
 {
     ClearScreen();
     for (int i = 0; i < N; i++)
@@ -169,9 +165,10 @@ void draw_particles(Particle *p, int N, float c_rad, float c_col, float L, float
     Refresh();
 }
 
-void start_system(Particle *p, InputData input)
+void start_system(Particle *p, const InputData input)
 {
-    const float c_rad = 0.005, c_col = 0, L = 1, W = 1;
+    const float c_rad = 0.005, c_col = 0;
+    const int L = 1, W = 1;
     for (int i = 0; i < input.nsteps; i++)
     {
         if (input.graphics)
@@ -181,35 +178,27 @@ void start_system(Particle *p, InputData input)
 
         update_particles(p, input);
 
-        usleep(300);
+        // usleep(500);
     }
 }
 
-void write_to_output_file(Particle *p, int N)
+void write_to_output_file(const Particle *p, const int N)
 {
     FILE *output = fopen("result.gal", "wb");
-
-    for (int i = 0; i < N; i++)
-    {
-        fwrite(&p[i], sizeof(Particle), 1, output);
-    }
-
+    fwrite(p, N * sizeof(Particle), 1, output);
     fclose(output);
 }
 
 int main(int argc, char const *argv[])
 {
     // Checks input data
-    InputData input;
-    if (check_input_count(argc))
-    {
-        input = get_inputs(argv);
-    }
-    else
+    if (!check_input_count(argc))
     {
         printf("Usage: %s  <N> <filename> <nsteps> <delta_t> <graphics> \n", argv[0]);
         return -1;
     }
+
+    InputData input = get_inputs(argv);
 
     // Print inputs
     // print_input(input);
