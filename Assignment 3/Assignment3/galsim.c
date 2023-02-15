@@ -51,7 +51,7 @@ InputData get_inputs(char const *argv[])
     input.nsteps = atoi(argv[3]);
     input.delta_t = atof(argv[4]);
     input.graphics = atoi(argv[5]);
-    input.G = (double) 100 / input.N;
+    input.G = (double)100 / input.N;
     return input;
 }
 
@@ -144,10 +144,10 @@ void update_particles(Particle *p, InputData input)
 
             r.abs = sqrt((r.x * r.x) + (r.y * r.y));
             r.abs_eps_3pow = (r.abs + EPSILON_ZERO) * (r.abs + EPSILON_ZERO) * (r.abs + EPSILON_ZERO);
-            
+
             temp = 1 / r.abs_eps_3pow;
-            f.x += (p[j].mass * temp) * r.x;
-            f.y += (p[j].mass * temp) * r.y;
+            f.x += p[j].mass * temp * r.x;
+            f.y += p[j].mass * temp * r.y;
         }
         // Force
         f.x *= -input.G * p[i].mass;
@@ -194,15 +194,9 @@ void start_system(Particle *p, InputData input)
     }
 }
 
-FILE *init_output_file()
-{
-    FILE *file = fopen("result.gal", "wb");
-    return file;
-}
-
 void write_to_output_file(Particle *p, int N)
 {
-    FILE *output = init_output_file();
+    FILE *output = fopen("result.gal", "wb");
 
     for (int i = 0; i < N; i++)
     {
@@ -227,7 +221,7 @@ int main(int argc, char const *argv[])
     }
 
     // Print inputs
-    //print_input(input);
+    // print_input(input);
 
     // Load particles
     Particle *particles = load_particles(input);
