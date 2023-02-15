@@ -19,12 +19,6 @@ typedef struct
 
 typedef struct
 {
-    FILE *file;
-    size_t filesize;
-} InputFile;
-
-typedef struct
-{
     double x, y;
 } Force;
 
@@ -55,33 +49,18 @@ InputData get_inputs(char const *argv[])
     return input;
 }
 
-InputFile read_file(const char *filename)
-{
-    FILE *file = fopen(filename, "rb");
-    fseek(file, 0L, SEEK_END);
-    size_t fileSize = ftell(file);
-    fseek(file, 0L, SEEK_SET);
-
-    InputFile input_file;
-    input_file.file = file;
-    input_file.filesize = fileSize;
-
-    return input_file;
-}
-
-void get_file_contents(InputFile input_file, Particle *p, int N)
-{
-    for (int i = 0; i < N; i++)
-    {
-        fread(&p[i], sizeof(Particle), N * 6, input_file.file);
-    }
-}
-
 Particle *load_particles(InputData input)
 {
-    InputFile input_file = read_file(input.filename);
+    FILE *file = fopen(input.filename, "rb");
+    
     Particle *p = malloc(input.N * sizeof(Particle));
-    get_file_contents(input_file, p, input.N);
+    for (int i = 0; i < input.N; i++)
+    {
+        fread(&p[i], sizeof(Particle), input.N * 6, file);
+    }
+
+    fclose(file);
+
     return p;
 }
 
@@ -175,6 +154,8 @@ void update_particles(Particle *p, InputData input)
         p[i].x = pos[i].x;
         p[i].y = pos[i].y;
     }
+
+    free(pos);
 }
 
 void draw_particles(Particle *p, int N, float c_rad, float c_col, float L, float W)
