@@ -195,12 +195,12 @@ void draw_particles(Particle *p, int N, float c_rad, float c_col, float L, float
 
 void start_system(Particle *p, InputData input)
 {
-    const float circleRadius = 0.005, circleColor = 0, L = 1, W = 1;
+    const float c_rad = 0.005, c_col = 0, L = 1, W = 1;
     for (int i = 0; i < input.nsteps; i++)
     {
         if (input.graphics)
         {
-            draw_particles(p, input.N, circleRadius, circleColor, L, W);
+            draw_particles(p, input.N, c_rad, c_col, L, W);
         }
 
         update_particles(p, input);
