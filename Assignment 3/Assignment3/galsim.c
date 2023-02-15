@@ -177,6 +177,7 @@ void update_particles(Particle *p, InputData input)
 
     for (int i = 0; i < input.N; i++)
     {
+        // Update particle position per step
         p[i].x = pos[i].x;
         p[i].y = pos[i].y;
     }
