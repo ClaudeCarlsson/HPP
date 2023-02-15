@@ -52,7 +52,7 @@ InputData get_inputs(char const *argv[])
 Particle *load_particles(InputData input)
 {
     FILE *file = fopen(input.filename, "rb");
-    
+
     Particle *p = malloc(input.N * sizeof(Particle));
     for (int i = 0; i < input.N; i++)
     {
@@ -98,8 +98,9 @@ void print_particle(const Particle *p, int N)
 
 void initialize_graphics()
 {
-    const int windowWidth = 800;
-    InitializeGraphics("Simulation", windowWidth, windowWidth);
+    int windowWidth = 800;
+    char windowName[10] = "Simulation";
+    InitializeGraphics(windowName, windowWidth, windowWidth);
     SetCAxes(0, 1);
 }
 
