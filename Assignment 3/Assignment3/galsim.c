@@ -43,6 +43,12 @@ typedef struct
     double abs_eps_3pow;
 } Distance;
 
+typedef struct
+{
+    double x;
+    double y;
+} Position;
+
 InputData get_inputs(char const *argv[])
 {
     InputData input;
@@ -126,12 +132,14 @@ void initialize_graphics()
 
 void update_particles(Particle *p, InputData input)
 {
+    Position *pos = malloc(input.N * sizeof(Position));
+    double temp = 0;
+
     for (int i = 0; i < input.N; i++)
     {
         Distance r = {0, 0, 0, 0};
         Force f = {0, 0};
         Acceleration a = {0, 0};
-        double temp = 0;
 
         for (int j = 0; j < input.N; j++)
         {
@@ -163,8 +171,14 @@ void update_particles(Particle *p, InputData input)
         p[i].vy = p[i].vy + input.delta_t * a.y;
 
         // Position
-        p[i].x = p[i].x + input.delta_t * p[i].vx;
-        p[i].y = p[i].y + input.delta_t * p[i].vy;
+        pos[i].x = p[i].x + input.delta_t * p[i].vx;
+        pos[i].y = p[i].y + input.delta_t * p[i].vy;
+    }
+
+    for (int i = 0; i < input.N; i++)
+    {
+        p[i].x = pos[i].x;
+        p[i].y = pos[i].y;
     }
 }
 
