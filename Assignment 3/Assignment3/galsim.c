@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "graphics.h"
-#include <unistd.h>
 
 #define EPSILON_ZERO 0.001
 
@@ -15,7 +14,7 @@ typedef struct
 
 typedef struct
 {
-    double x, y, vx, vy, mass, brightness;
+    double x, y, mass, vx, vy, brightness;
 } Particle;
 
 typedef struct
@@ -113,7 +112,7 @@ void print_particle(const Particle *p, int N)
 {
     for (int i = 0; i < N; i++)
     {
-        printf("# %2.0d | x: %5.2lf, y: %5.2lf, vx: %5.2lf, vy: %5.2lf, mass: %5.2lf, brightness: %5.2lf\n",
+        printf("# %2.0d | x: %5.2lf, y: %5.2lf, mass: %5.2lf, vx: %5.2lf, vy: %5.2lf, brightness: %5.2lf\n",
                (i + 1), p[i].x, p[i].y, p[i].vx, p[i].vy, p[i].mass, p[i].brightness);
     }
 }
