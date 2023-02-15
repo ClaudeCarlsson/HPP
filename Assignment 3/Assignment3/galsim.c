@@ -225,12 +225,12 @@ int main(int argc, char const *argv[])
     }
 
     // Print inputs
-    print_input(input);
+    //print_input(input);
 
     // Load particles
     Particle *particles = load_particles(input);
 
-    // Print particles printf("\033[2J\033[1;1H");
+    // Print particles
     // print_particle(particles, input.N);
 
     // Check graphics
