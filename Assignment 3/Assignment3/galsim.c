@@ -132,6 +132,7 @@ void update_particles(Particle *p, InputData input)
         Distance r = {0, 0, 0, 0};
         Force f = {0, 0};
         Acceleration a = {0, 0};
+        double temp = 0;
 
         for (int j = 0; j < input.N; j++)
         {
@@ -144,17 +145,19 @@ void update_particles(Particle *p, InputData input)
 
             r.abs = sqrt((r.x * r.x) + (r.y * r.y));
             r.abs_eps_3pow = (r.abs + EPSILON_ZERO) * (r.abs + EPSILON_ZERO) * (r.abs + EPSILON_ZERO);
-
-            f.x += (p[j].mass / r.abs_eps_3pow) * r.x;
-            f.y += (p[j].mass / r.abs_eps_3pow) * r.y;
+            
+            temp = 1 / r.abs_eps_3pow;
+            f.x += (p[j].mass * temp) * r.x;
+            f.y += (p[j].mass * temp) * r.y;
         }
         // Force
         f.x *= -input.G * p[i].mass;
         f.y *= -input.G * p[i].mass;
 
         // Acceleration
-        a.x = f.x / p[i].mass;
-        a.y = f.y / p[i].mass;
+        temp = 1 / p[i].mass;
+        a.x = f.x * temp;
+        a.y = f.y * temp;
 
         // Velocity
         p[i].vx = p[i].vx + input.delta_t * a.x;
@@ -242,7 +245,7 @@ int main(int argc, char const *argv[])
     // Start system
     start_system(particles, input);
 
-    // Write a result file
+    // Write result to file
     write_to_output_file(particles, input.N);
 
     // Quit graphics if enabled
