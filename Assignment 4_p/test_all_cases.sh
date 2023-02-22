@@ -7,6 +7,6 @@ do
         STEPS=100
     fi
     echo -e "\n${i} ------------------------------"
-    ./galsim "${i}" input_data/ellipse_N_"${i}".gal "${STEPS}" 0.00001 0
+    time ./galsim "${i}" input_data/ellipse_N_"${i}".gal "${STEPS}" 0.00001 0 8
     compare_gal_files/compare_gal_files "${i}" result.gal ref_output_data/ellipse_N_"${i}"_after"${STEPS}"steps.gal
 done

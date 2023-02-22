@@ -8,7 +8,7 @@
 
 typedef struct
 {
-    int N, nsteps, graphics;
+    int N, nsteps, graphics, n_threads;
     double delta_t, G;
     const char *filename;
 } InputData;
@@ -28,6 +28,15 @@ typedef struct
     double x, y;
 } Force;
 
+typedef struct
+{
+    Particle *p;
+    Position *pos;
+    double **d;
+    InputData input;
+    int particles_per_thread, start_idx, end_idx, thread_idx;
+} ThreadData;
+
 InputData get_inputs(const char *argv[])
 {
     InputData input;
@@ -36,6 +45,7 @@ InputData get_inputs(const char *argv[])
     input.nsteps = atoi(argv[3]);
     input.delta_t = atof(argv[4]);
     input.graphics = atoi(argv[5]);
+    input.n_threads = atoi(argv[6]);
     input.G = (double)100 / input.N;
     return input;
 }
@@ -65,7 +75,7 @@ Particle *load_particles(const InputData input)
 
 int check_input_count(const int argc)
 {
-    if (argc == 6)
+    if (argc == 7)
     {
         return 1;
     }
@@ -103,6 +113,63 @@ void initialize_graphics()
     SetCAxes(0, 1);
 }
 
+void *thread_function_distance(void *arg)
+{
+    ThreadData *thread_data = (ThreadData *)arg;
+
+    int start_index = thread_data->thread_idx * thread_data->particles_per_thread;
+    int end_index = (thread_data->thread_idx + 1) * thread_data->particles_per_thread;
+
+    if (thread_data->thread_idx == thread_data->input.n_threads - 1)
+    {
+        end_index = thread_data->input.N - 1;
+    }
+
+    for (int i = start_index; i < end_index; i++)
+    {
+        for (int j = i + 1; j < thread_data->input.N; j++)
+        {
+            thread_data->d[i][j] = sqrt((thread_data->p[i].x - thread_data->p[j].x) * (thread_data->p[i].x - thread_data->p[j].x) + (thread_data->p[i].y - thread_data->p[j].y) * (thread_data->p[i].y - thread_data->p[j].y));
+            thread_data->d[j][i] = thread_data->d[i][j];
+        }
+    }
+
+    pthread_exit(NULL);
+}
+
+void *thread_function_velocity_position(void *arg)
+{
+    ThreadData *thread_data = (ThreadData *)arg;
+    Force f = {0, 0};
+    double temp_distance = 0;
+
+    for (int i = thread_data->start_idx; i < thread_data->end_idx; i++)
+    {
+        f.x = 0;
+        f.y = 0;
+        for (int j = 0; j < thread_data->input.N; j++)
+        {
+            if (i == j)
+            {
+                continue;
+            }
+            temp_distance = 1 / ((thread_data->d[i][j] + EPSILON_ZERO) * (thread_data->d[i][j] + EPSILON_ZERO) * (thread_data->d[i][j] + EPSILON_ZERO));
+            f.x += thread_data->p[j].mass * temp_distance * (thread_data->p[i].x - thread_data->p[j].x);
+            f.y += thread_data->p[j].mass * temp_distance * (thread_data->p[i].y - thread_data->p[j].y);
+        }
+
+        // Velocity
+        thread_data->p[i].vx += thread_data->input.delta_t * f.x * -thread_data->input.G;
+        thread_data->p[i].vy += thread_data->input.delta_t * f.y * -thread_data->input.G;
+
+        // Position
+        thread_data->pos[i].x = thread_data->p[i].x + thread_data->input.delta_t * thread_data->p[i].vx;
+        thread_data->pos[i].y = thread_data->p[i].y + thread_data->input.delta_t * thread_data->p[i].vy;
+    }
+
+    pthread_exit(NULL);
+}
+
 void draw_particles(Particle *p, const int N, const float c_rad, const float c_col, const float L, const float W)
 {
     ClearScreen();
@@ -113,99 +180,61 @@ void draw_particles(Particle *p, const int N, const float c_rad, const float c_c
     Refresh();
 }
 
-typedef struct {
-    Particle *p;
-    Position *pos;
-    double **d;
-    int start_index;
-    int end_index;
-    InputData input;
-} ThreadData;
-
-#define NUM_THREADS 1
-
-void *update_particles_helper(void *thread_data)
-{
-    ThreadData *data = (ThreadData *) thread_data;
-
-    double temp_distance;
-    Force f = {0, 0};
-
-    for (int i = data->start_index; i < data->end_index; i++) {
-        for (int j = 0; j < data->input.N; j++) {
-            if (i == j) {
-                continue;
-            }
-
-            temp_distance = 1 / ((data->d[i][j] + EPSILON_ZERO) * (data->d[i][j] + EPSILON_ZERO) * (data->d[i][j] + EPSILON_ZERO));
-            f.x += data->p[j].mass * temp_distance * (data->p[i].x - data->p[j].x);
-            f.y += data->p[j].mass * temp_distance * (data->p[i].y - data->p[j].y);
-        }
-
-        // Velocity
-        data->p[i].vx += data->input.delta_t * f.x * -data->input.G;
-        data->p[i].vy += data->input.delta_t * f.y * -data->input.G;
-
-        // Position
-        data->pos[i].x = data->p[i].x + data->input.delta_t * data->p[i].vx;
-        data->pos[i].y = data->p[i].y + data->input.delta_t * data->p[i].vy;
-
-        // Reset force
-        f.x = 0;
-        f.y = 0;
-    }
-
-    pthread_exit(NULL);
-}
-
 void update_particles(Particle *p, Position *pos, double **d, const InputData input)
 {
-    pthread_t threads[NUM_THREADS];
-    ThreadData thread_data[NUM_THREADS];
+    pthread_t thread[input.n_threads];
+    ThreadData thread_data[input.n_threads];
+    int particles_per_thread = input.N / input.n_threads;
 
-    // Initialize thread data
-    int particles_per_thread = input.N / NUM_THREADS;
-    int remainder_particles = input.N % NUM_THREADS;
-    int start_index = 0;
-    int end_index = 0;
-
-    for (int i = 0; i < NUM_THREADS; i++) {
-        start_index = end_index;
-        end_index = start_index + particles_per_thread;
-
-        if (i == NUM_THREADS - 1) {
-            end_index += remainder_particles;
-        }
-
+    // Initialize thread arguments
+    for (int i = 0; i < input.n_threads; i++)
+    {
         thread_data[i].p = p;
         thread_data[i].pos = pos;
         thread_data[i].d = d;
-        thread_data[i].start_index = start_index;
-        thread_data[i].end_index = end_index;
         thread_data[i].input = input;
-
-        pthread_create(&threads[i], NULL, update_particles_helper, (void *)&thread_data[i]);
+        thread_data[i].particles_per_thread = particles_per_thread;
+        thread_data[i].start_idx = (i)*thread_data[i].particles_per_thread;
+        thread_data[i].end_idx = (i + 1) * thread_data[i].particles_per_thread;
+        if (i == (input.n_threads - 1))
+        {
+            thread_data[i].end_idx = input.N;
+        }
+        thread_data[i].thread_idx = i;
     }
 
-    // Join threads
-    for (int i = 0; i < NUM_THREADS; i++) {
-        pthread_join(threads[i], NULL);
+    for (int i = 0; i < input.n_threads; i++)
+    {
+        pthread_create(&thread[i], NULL, thread_function_distance, &thread_data[i]);
+    }
+
+    for (int i = 0; i < input.n_threads; i++)
+    {
+        pthread_join(thread[i], NULL);
+    }
+
+    for (int i = 0; i < input.n_threads; i++)
+    {
+        pthread_create(&thread[i], NULL, thread_function_velocity_position, &thread_data[i]);
+    }
+
+    for (int i = 0; i < input.n_threads; i++)
+    {
+        pthread_join(thread[i], NULL);
     }
 
     for (int i = 0; i < input.N; i++)
     {
         // Update particle position per step
-        p[i].x = thread_data[i].pos->x;
-        p[i].y = thread_data[i].pos->y;
-        p[i].vx = thread_data[i].p->vx;
-        p[i].vy = thread_data[i].p->vy;
+        p[i].x = pos[i].x;
+        p[i].y = pos[i].y;
     }
 }
 
 void start_system(Particle *p, const InputData input)
 {
-    //const float c_rad = 0.005, c_col = 0;
-    //const int L = 1, W = 1;
+    const float c_rad = 0.005, c_col = 0;
+    const int L = 1, W = 1;
 
     Position *pos = malloc(input.N * sizeof(Position));
 
@@ -217,6 +246,11 @@ void start_system(Particle *p, const InputData input)
 
     for (int i = 0; i < input.nsteps; i++)
     {
+        if (input.graphics)
+        {
+            draw_particles(p, input.N, c_rad, c_col, L, W);
+        }
+
         update_particles(p, pos, d, input);
     }
     for (int i = 0; i < input.N; i++)
@@ -239,7 +273,7 @@ int main(int argc, char const *argv[])
     // Checks input data
     if (!check_input_count(argc))
     {
-        printf("Usage: %s  <N> <filename> <nsteps> <delta_t> <graphics> \n", argv[0]);
+        printf("Usage: %s  <N> <filename> <nsteps> <delta_t> <graphics> <n_threads> \n", argv[0]);
         return -1;
     }
 
@@ -257,7 +291,7 @@ int main(int argc, char const *argv[])
     }
 
     // Print particles
-    print_particle(particles, input.N);
+    // print_particle(particles, input.N);
 
     // Check graphics
     if (input.graphics)
@@ -269,7 +303,7 @@ int main(int argc, char const *argv[])
     start_system(particles, input);
 
     // Print particles
-    print_particle(particles, input.N);
+    // print_particle(particles, input.N);
 
     // Write result to file
     write_to_output_file(particles, input.N);
