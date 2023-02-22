@@ -34,7 +34,7 @@ typedef struct
     Position *pos;
     double **d;
     InputData input;
-    int particles_per_thread, start_idx, end_idx, thread_idx;
+    int start_idx, end_idx, thread_idx;
 } ThreadData;
 
 InputData get_inputs(const char *argv[])
@@ -93,6 +93,7 @@ void print_input(const InputData input)
     printf("nsteps = %d\n", input.nsteps);
     printf("delta_t = %f\n", input.delta_t);
     printf("graphics = %d\n", input.graphics);
+    printf("n_threads = %d\n", input.n_threads);
     printf("(G = %f)\n", input.G);
 }
 
@@ -117,15 +118,7 @@ void *thread_function_distance(void *arg)
 {
     ThreadData *thread_data = (ThreadData *)arg;
 
-    int start_index = thread_data->thread_idx * thread_data->particles_per_thread;
-    int end_index = (thread_data->thread_idx + 1) * thread_data->particles_per_thread;
-
-    if (thread_data->thread_idx == thread_data->input.n_threads - 1)
-    {
-        end_index = thread_data->input.N - 1;
-    }
-
-    for (int i = start_index; i < end_index; i++)
+    for (int i = thread_data->start_idx; i < thread_data->end_idx; i++)
     {
         for (int j = i + 1; j < thread_data->input.N; j++)
         {
@@ -193,9 +186,8 @@ void update_particles(Particle *p, Position *pos, double **d, const InputData in
         thread_data[i].pos = pos;
         thread_data[i].d = d;
         thread_data[i].input = input;
-        thread_data[i].particles_per_thread = particles_per_thread;
-        thread_data[i].start_idx = (i)*thread_data[i].particles_per_thread;
-        thread_data[i].end_idx = (i + 1) * thread_data[i].particles_per_thread;
+        thread_data[i].start_idx = (i) * particles_per_thread;
+        thread_data[i].end_idx = (i + 1) * particles_per_thread;
         if (i == (input.n_threads - 1))
         {
             thread_data[i].end_idx = input.N;
