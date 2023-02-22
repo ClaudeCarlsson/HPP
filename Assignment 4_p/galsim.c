@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "graphics.h"
+#include <pthread.h>
 
 #define EPSILON_ZERO 0.001
 
@@ -24,18 +25,8 @@ typedef struct
 
 typedef struct
 {
-    double x, y, abs, abs_eps_3pow;
-} Distance;
-
-typedef struct
-{
     double x, y;
 } Force;
-
-typedef struct
-{
-    double x, y;
-} Acceleration;
 
 InputData get_inputs(const char *argv[])
 {
@@ -112,71 +103,6 @@ void initialize_graphics()
     SetCAxes(0, 1);
 }
 
-void update_particles(Particle *p, const InputData input, double **d)
-{
-
-    Distance r = {0, 0, 0};
-    Force f = {0, 0};
-    Acceleration a = {0, 0};
-    Position *pos = malloc(input.N * sizeof(Position));
-    double temp = 0;
-
-    for (int i = 0; i < input.N; i++)
-    {
-        for (int j = i + 1; j < input.N; j++)
-        {
-            d[i][j] = sqrt((p[i].x - p[j].x) * (p[i].x - p[j].x) + (p[i].y - p[j].y) * (p[i].y - p[j].y));
-            d[j][i] = d[i][j];
-        }
-    }
-
-    for (int i = 0; i < input.N; i++)
-    {
-        f.x = 0;
-        f.y = 0;
-        for (int j = 0; j < input.N; j++)
-        {
-            if (i == j)
-            {
-                continue;
-            }
-            r.x = p[i].x - p[j].x;
-            r.y = p[i].y - p[j].y;
-
-            r.abs_eps_3pow = (d[i][j] + EPSILON_ZERO) * (d[i][j] + EPSILON_ZERO) * (d[i][j] + EPSILON_ZERO);
-
-            temp = 1 / r.abs_eps_3pow;
-            f.x += p[j].mass * temp * r.x;
-            f.y += p[j].mass * temp * r.y;
-        }
-        // Force
-        f.x *= -input.G * p[i].mass;
-        f.y *= -input.G * p[i].mass;
-
-        // Acceleration
-        temp = 1 / p[i].mass;
-        a.x = f.x * temp;
-        a.y = f.y * temp;
-
-        // Velocity
-        p[i].vx += input.delta_t * a.x;
-        p[i].vy += input.delta_t * a.y;
-
-        // Position
-        pos[i].x = p[i].x + input.delta_t * p[i].vx;
-        pos[i].y = p[i].y + input.delta_t * p[i].vy;
-    }
-
-    for (int i = 0; i < input.N; i++)
-    {
-        // Update particle position per step
-        p[i].x = pos[i].x;
-        p[i].y = pos[i].y;
-    }
-
-    free(pos);
-}
-
 void draw_particles(Particle *p, const int N, const float c_rad, const float c_col, const float L, const float W)
 {
     ClearScreen();
@@ -187,26 +113,118 @@ void draw_particles(Particle *p, const int N, const float c_rad, const float c_c
     Refresh();
 }
 
+typedef struct {
+    Particle *p;
+    Position *pos;
+    double **d;
+    int start_index;
+    int end_index;
+    InputData input;
+} ThreadData;
+
+#define NUM_THREADS 1
+
+void *update_particles_helper(void *thread_data)
+{
+    ThreadData *data = (ThreadData *) thread_data;
+
+    double temp_distance;
+    Force f = {0, 0};
+
+    for (int i = data->start_index; i < data->end_index; i++) {
+        for (int j = 0; j < data->input.N; j++) {
+            if (i == j) {
+                continue;
+            }
+
+            temp_distance = 1 / ((data->d[i][j] + EPSILON_ZERO) * (data->d[i][j] + EPSILON_ZERO) * (data->d[i][j] + EPSILON_ZERO));
+            f.x += data->p[j].mass * temp_distance * (data->p[i].x - data->p[j].x);
+            f.y += data->p[j].mass * temp_distance * (data->p[i].y - data->p[j].y);
+        }
+
+        // Velocity
+        data->p[i].vx += data->input.delta_t * f.x * -data->input.G;
+        data->p[i].vy += data->input.delta_t * f.y * -data->input.G;
+
+        // Position
+        data->pos[i].x = data->p[i].x + data->input.delta_t * data->p[i].vx;
+        data->pos[i].y = data->p[i].y + data->input.delta_t * data->p[i].vy;
+
+        // Reset force
+        f.x = 0;
+        f.y = 0;
+    }
+
+    pthread_exit(NULL);
+}
+
+void update_particles(Particle *p, Position *pos, double **d, const InputData input)
+{
+    pthread_t threads[NUM_THREADS];
+    ThreadData thread_data[NUM_THREADS];
+
+    // Initialize thread data
+    int particles_per_thread = input.N / NUM_THREADS;
+    int remainder_particles = input.N % NUM_THREADS;
+    int start_index = 0;
+    int end_index = 0;
+
+    for (int i = 0; i < NUM_THREADS; i++) {
+        start_index = end_index;
+        end_index = start_index + particles_per_thread;
+
+        if (i == NUM_THREADS - 1) {
+            end_index += remainder_particles;
+        }
+
+        thread_data[i].p = p;
+        thread_data[i].pos = pos;
+        thread_data[i].d = d;
+        thread_data[i].start_index = start_index;
+        thread_data[i].end_index = end_index;
+        thread_data[i].input = input;
+
+        pthread_create(&threads[i], NULL, update_particles_helper, (void *)&thread_data[i]);
+    }
+
+    // Join threads
+    for (int i = 0; i < NUM_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    for (int i = 0; i < input.N; i++)
+    {
+        // Update particle position per step
+        p[i].x = thread_data[i].pos->x;
+        p[i].y = thread_data[i].pos->y;
+        p[i].vx = thread_data[i].p->vx;
+        p[i].vy = thread_data[i].p->vy;
+    }
+}
+
 void start_system(Particle *p, const InputData input)
 {
-    const float c_rad = 0.005, c_col = 0;
-    const int L = 1, W = 1;
+    //const float c_rad = 0.005, c_col = 0;
+    //const int L = 1, W = 1;
+
+    Position *pos = malloc(input.N * sizeof(Position));
+
     double **d = (double **)malloc(input.N * sizeof(double *));
     for (int i = 0; i < input.N; i++)
+    {
         d[i] = (double *)malloc(input.N * sizeof(double));
+    }
 
     for (int i = 0; i < input.nsteps; i++)
     {
-        if (input.graphics)
-        {
-            draw_particles(p, input.N, c_rad, c_col, L, W);
-        }
-
-        update_particles(p, input, d);
-
-        // usleep(500);
+        update_particles(p, pos, d, input);
+    }
+    for (int i = 0; i < input.N; i++)
+    {
+        free(d[i]);
     }
     free(d);
+    free(pos);
 }
 
 void write_to_output_file(const Particle *p, const int N)
@@ -239,7 +257,7 @@ int main(int argc, char const *argv[])
     }
 
     // Print particles
-    // print_particle(particles, input.N);
+    print_particle(particles, input.N);
 
     // Check graphics
     if (input.graphics)
@@ -249,6 +267,9 @@ int main(int argc, char const *argv[])
 
     // Start system
     start_system(particles, input);
+
+    // Print particles
+    print_particle(particles, input.N);
 
     // Write result to file
     write_to_output_file(particles, input.N);

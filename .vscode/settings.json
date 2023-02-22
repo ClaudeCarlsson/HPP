@@ -4,6 +4,10 @@
         "math.h": "c",
         "testfuncs.h": "c",
         "time.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "graphics.h": "c",
+        "immintrin.h": "c",
+        "xmmintrin.h": "c",
+        "omp.h": "c"
     }
 }

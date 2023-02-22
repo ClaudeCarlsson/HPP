@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include "graphics.h"
+#include <omp.h>
 
 #define EPSILON_ZERO 0.001
 
 typedef struct
 {
-    int N, nsteps, graphics;
+    int N, nsteps, graphics, n_threads;
     double delta_t, G;
     const char *filename;
 } InputData;
@@ -24,18 +25,8 @@ typedef struct
 
 typedef struct
 {
-    double x, y, abs, abs_eps_3pow;
-} Distance;
-
-typedef struct
-{
     double x, y;
 } Force;
-
-typedef struct
-{
-    double x, y;
-} Acceleration;
 
 InputData get_inputs(const char *argv[])
 {
@@ -45,6 +36,7 @@ InputData get_inputs(const char *argv[])
     input.nsteps = atoi(argv[3]);
     input.delta_t = atof(argv[4]);
     input.graphics = atoi(argv[5]);
+    input.n_threads = atoi(argv[6]);
     input.G = (double)100 / input.N;
     return input;
 }
@@ -74,7 +66,7 @@ Particle *load_particles(const InputData input)
 
 int check_input_count(const int argc)
 {
-    if (argc == 6)
+    if (argc == 7)
     {
         return 1;
     }
@@ -112,15 +104,11 @@ void initialize_graphics()
     SetCAxes(0, 1);
 }
 
-void update_particles(Particle *p, const InputData input, double **d)
+void update_particles(Particle *p, Position *pos, double **d, const InputData input)
 {
-
-    Distance r = {0, 0, 0};
     Force f = {0, 0};
-    Acceleration a = {0, 0};
-    Position *pos = malloc(input.N * sizeof(Position));
-    double temp = 0;
-
+    double temp_distance = 0;
+#pragma omp parallel for
     for (int i = 0; i < input.N; i++)
     {
         for (int j = i + 1; j < input.N; j++)
@@ -129,7 +117,7 @@ void update_particles(Particle *p, const InputData input, double **d)
             d[j][i] = d[i][j];
         }
     }
-
+#pragma omp parallel for
     for (int i = 0; i < input.N; i++)
     {
         f.x = 0;
@@ -140,41 +128,27 @@ void update_particles(Particle *p, const InputData input, double **d)
             {
                 continue;
             }
-            r.x = p[i].x - p[j].x;
-            r.y = p[i].y - p[j].y;
-
-            r.abs_eps_3pow = (d[i][j] + EPSILON_ZERO) * (d[i][j] + EPSILON_ZERO) * (d[i][j] + EPSILON_ZERO);
-
-            temp = 1 / r.abs_eps_3pow;
-            f.x += p[j].mass * temp * r.x;
-            f.y += p[j].mass * temp * r.y;
+            temp_distance = 1 / ((d[i][j] + EPSILON_ZERO) * (d[i][j] + EPSILON_ZERO) * (d[i][j] + EPSILON_ZERO));
+            f.x += p[j].mass * temp_distance * (p[i].x - p[j].x);
+            f.y += p[j].mass * temp_distance * (p[i].y - p[j].y);
         }
-        // Force
-        f.x *= -input.G * p[i].mass;
-        f.y *= -input.G * p[i].mass;
-
-        // Acceleration
-        temp = 1 / p[i].mass;
-        a.x = f.x * temp;
-        a.y = f.y * temp;
 
         // Velocity
-        p[i].vx += input.delta_t * a.x;
-        p[i].vy += input.delta_t * a.y;
+        p[i].vx += input.delta_t * f.x * -input.G;
+        p[i].vy += input.delta_t * f.y * -input.G;
 
         // Position
         pos[i].x = p[i].x + input.delta_t * p[i].vx;
         pos[i].y = p[i].y + input.delta_t * p[i].vy;
     }
 
+#pragma omp parallel for
     for (int i = 0; i < input.N; i++)
     {
         // Update particle position per step
         p[i].x = pos[i].x;
         p[i].y = pos[i].y;
     }
-
-    free(pos);
 }
 
 void draw_particles(Particle *p, const int N, const float c_rad, const float c_col, const float L, const float W)
@@ -191,9 +165,14 @@ void start_system(Particle *p, const InputData input)
 {
     const float c_rad = 0.005, c_col = 0;
     const int L = 1, W = 1;
+
+    Position *pos = malloc(input.N * sizeof(Position));
+
     double **d = (double **)malloc(input.N * sizeof(double *));
     for (int i = 0; i < input.N; i++)
+    {
         d[i] = (double *)malloc(input.N * sizeof(double));
+    }
 
     for (int i = 0; i < input.nsteps; i++)
     {
@@ -202,11 +181,14 @@ void start_system(Particle *p, const InputData input)
             draw_particles(p, input.N, c_rad, c_col, L, W);
         }
 
-        update_particles(p, input, d);
-
-        // usleep(500);
+        update_particles(p, pos, d, input);
+    }
+    for (int i = 0; i < input.N; i++)
+    {
+        free(d[i]);
     }
     free(d);
+    free(pos);
 }
 
 void write_to_output_file(const Particle *p, const int N)
@@ -221,11 +203,14 @@ int main(int argc, char const *argv[])
     // Checks input data
     if (!check_input_count(argc))
     {
-        printf("Usage: %s  <N> <filename> <nsteps> <delta_t> <graphics> \n", argv[0]);
+        printf("Usage: %s  <N> <filename> <nsteps> <delta_t> <graphics> <n_threads> \n", argv[0]);
         return -1;
     }
 
     InputData input = get_inputs(argv);
+
+    // Set the amount of threads
+    omp_set_num_threads(input.n_threads);
 
     // Print inputs
     // print_input(input);
