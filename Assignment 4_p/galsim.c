@@ -137,8 +137,8 @@ void *thread_function_velocity_position(void *arg)
     Force f = {0, 0};
     double temp_distance = 0;
 
-    for (int i = thread_data->thread_idx; i < thread_data->input.N; i+=thread_data->input.n_threads) //-- Every n_threads for-loop
-    //for (int i = thread_data->start_idx; i < thread_data->end_idx; i++) //-- Segmented for-loop 
+    //for (int i = thread_data->thread_idx; i < thread_data->input.N; i+=thread_data->input.n_threads) //-- Every n_threads for-loop
+    for (int i = thread_data->start_idx; i < thread_data->end_idx; i++) //-- Segmented for-loop 
     {
         f.x = 0;
         f.y = 0;
