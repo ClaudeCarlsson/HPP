@@ -118,8 +118,8 @@ void *thread_function_distance(void *arg)
 {
     ThreadData *thread_data = (ThreadData *)arg;
 
-    for (int i = thread_data->thread_idx; i < thread_data->input.N; i+=thread_data->input.n_threads) //-- Every n_threads for-loop
-    //for (int i = thread_data->start_idx; i < thread_data->end_idx; i++) //-- Segmented for-loop 
+    for (int i = thread_data->thread_idx; i < thread_data->input.N; i += thread_data->input.n_threads) //-- Every n_threads for-loop
+    // for (int i = thread_data->start_idx; i < thread_data->end_idx; i++) //-- Segmented for-loop
     {
         for (int j = i + 1; j < thread_data->input.N; j++)
         {
@@ -137,8 +137,8 @@ void *thread_function_velocity_position(void *arg)
     Force f = {0, 0};
     double temp_distance = 0;
 
-    //for (int i = thread_data->thread_idx; i < thread_data->input.N; i+=thread_data->input.n_threads) //-- Every n_threads for-loop
-    for (int i = thread_data->start_idx; i < thread_data->end_idx; i++) //-- Segmented for-loop 
+    for (int i = thread_data->thread_idx; i < thread_data->input.N; i+=thread_data->input.n_threads) //-- Every n_threads for-loop
+    // for (int i = thread_data->start_idx; i < thread_data->end_idx; i++) //-- Segmented for-loop
     {
         f.x = 0;
         f.y = 0;
@@ -188,7 +188,7 @@ void update_particles(Particle *p, Position *pos, double **d, const InputData in
         thread_data[i].pos = pos;
         thread_data[i].d = d;
         thread_data[i].input = input;
-        thread_data[i].start_idx = (i) * particles_per_thread;
+        thread_data[i].start_idx = (i)*particles_per_thread;
         thread_data[i].end_idx = (i + 1) * particles_per_thread;
         if (i == (input.n_threads - 1))
         {
@@ -247,6 +247,7 @@ void start_system(Particle *p, const InputData input)
 
         update_particles(p, pos, d, input);
     }
+
     for (int i = 0; i < input.N; i++)
     {
         free(d[i]);
@@ -295,9 +296,6 @@ int main(int argc, char const *argv[])
 
     // Start system
     start_system(particles, input);
-
-    // Print particles
-    // print_particle(particles, input.N);
 
     // Write result to file
     write_to_output_file(particles, input.N);
