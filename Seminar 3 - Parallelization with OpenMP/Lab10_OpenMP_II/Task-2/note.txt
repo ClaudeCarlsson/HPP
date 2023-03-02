@@ -1,0 +1,16 @@
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_II/Task-2$ time ./ompsections 
+funcB() result: x = 2.718282
+funcA() result: x = 1.648721
+
+real    0m2,525s
+user    0m5,038s
+sys     0m0,003s
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_II/Task-2$ time ./ompsections 
+funcA() result: x = 1.648721
+funcB() result: x = 2.718282
+funcC() result: x = 2.718282
+
+real    0m2,531s
+user    0m7,560s
+sys     0m0,003s

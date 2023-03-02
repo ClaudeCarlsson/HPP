@@ -8,6 +8,8 @@
         "graphics.h": "c",
         "immintrin.h": "c",
         "xmmintrin.h": "c",
-        "omp.h": "c"
-    }
+        "omp.h": "c",
+        "stdio.h": "c"
+    },
+    "editor.formatOnSave": true
 }

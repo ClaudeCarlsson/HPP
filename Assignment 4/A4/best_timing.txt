@@ -1,0 +1,4 @@
+14,349
+8,725
+Intel® Xeon® Processor E5520
+8

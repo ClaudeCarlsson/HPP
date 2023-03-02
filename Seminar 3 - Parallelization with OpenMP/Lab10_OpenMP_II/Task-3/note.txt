@@ -1,0 +1,13 @@
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_II/Task-3$ time ./simple-loop 
+sum = 19999.749173
+
+real    0m5,027s
+user    0m5,023s
+sys     0m0,004s
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_II/Task-3$ time ./simple-loop 
+sum = 19999.749173
+
+real    0m1,698s
+user    0m5,057s
+sys     0m0,001s

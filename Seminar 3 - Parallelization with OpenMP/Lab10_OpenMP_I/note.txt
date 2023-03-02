@@ -1,0 +1,94 @@
+Task1:
+Nothing special without -fopenmp
+Bonjour! x 16
+Works with 6x
+
+
+Task2:
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-2$ ./threads_doing_work 1
+Now I am going to do some work...
+Work done! My result j = 9000000000
+Execution time: 8.751223 seconds
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-2$ ./threads_doing_work 8
+Now I am going to do some work...
+Now I am going to do some work...
+Now I am going to do some work...
+Now I am going to do some work...
+Now I am going to do some work...
+Now I am going to do some work...
+Now I am going to do some work...
+Now I am going to do some work...
+Work done! My result j = 9000000000
+Work done! My result j = 9000000000
+Work done! My result j = 9000000000
+Work done! My result j = 9000000000
+Work done! My result j = 9000000000
+Work done! My result j = 9000000000
+Work done! My result j = 9000000000
+Work done! My result j = 9000000000
+Execution time: 8.861143 seconds
+
+
+Task3:
+What is the difference between the functions
+omp_get_num_threads() and omp_get_max_threads()?
+
+This is inside thread_func() with thread ID 1 out of 2 threads
+This is inside thread_func() with thread ID 0 out of 2 threads
+
+
+Task4:
+p->result = p->A * p->B;
+arr[0]: 4.440000
+arr[1]: 19.360000
+
+
+Task5:
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-5$ ./Ntest 
+This is the main() function starting.
+This is the main() function after the parallel block.
+result_A : 4900000000
+result_B : 700000000
+totalSum : 5600000000
+Elapsed time: 2.055061 seconds
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-5$ make
+gcc -fopenmp Ntest.c -o Ntest
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-5$ ./Ntest 
+This is the main() function starting.
+This is the main() function after the parallel block.
+result_A : 2800000000
+result_B : 2800000000
+totalSum : 5600000000
+Elapsed time: 1.179585 seconds
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-5$ make
+gcc -fopenmp Ntest.c -o Ntest
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-5$ ./Ntest 
+This is the main() function starting.
+This is the main() function after the parallel block.
+result_A : 5600000000
+result_B : 0
+totalSum : 5600000000
+Elapsed time: 2.346942 seconds
+
+Task 6:
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-6$ ./code 10000000 1
+Found 664579 prime numbers between 0 and 10000000
+Time taken: 9.133641 seconds
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-6$ ./code 10000000 2
+Found 664579 prime numbers between 0 and 10000000
+Time taken: 4.562152 seconds
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-6$ ./code 10000000 4
+Found 664579 prime numbers between 0 and 10000000
+Time taken: 2.291872 seconds
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-6$ ./code 10000000 8
+Found 664579 prime numbers between 0 and 10000000
+Time taken: 1.186215 seconds
+
+Task 7: -
+
+Task 8:
+
+Task 9:
