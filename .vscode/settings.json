@@ -9,7 +9,11 @@
         "immintrin.h": "c",
         "xmmintrin.h": "c",
         "omp.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "ratio": "c",
+        "chrono": "c",
+        "variant": "c",
+        "array": "c"
     },
-    "editor.formatOnSave": true
+    "editor.formatOnSave": false
 }

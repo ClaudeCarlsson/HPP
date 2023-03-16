@@ -9,6 +9,7 @@ clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Tas
 Now I am going to do some work...
 Work done! My result j = 9000000000
 Execution time: 8.751223 seconds
+
 clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-2$ ./threads_doing_work 8
 Now I am going to do some work...
 Now I am going to do some work...
@@ -51,6 +52,7 @@ result_A : 4900000000
 result_B : 700000000
 totalSum : 5600000000
 Elapsed time: 2.055061 seconds
+
 clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-5$ make
 gcc -fopenmp Ntest.c -o Ntest
 clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-5$ ./Ntest 
@@ -60,8 +62,7 @@ result_A : 2800000000
 result_B : 2800000000
 totalSum : 5600000000
 Elapsed time: 1.179585 seconds
-clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-5$ make
-gcc -fopenmp Ntest.c -o Ntest
+
 clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-5$ ./Ntest 
 This is the main() function starting.
 This is the main() function after the parallel block.
@@ -87,8 +88,89 @@ clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Tas
 Found 664579 prime numbers between 0 and 10000000
 Time taken: 1.186215 seconds
 
-Task 7: -
+Task 7: 
+#ifdef _OPENMP
+  t1 = omp_get_wtime();
+#endif
+  int count = count_primes(M, num_threads);
+#ifdef _OPENMP
+  t2 = omp_get_wtime();
+#endif
 
 Task 8:
+  for (int i = 1; i <= N; ++i)
+  {
+#pragma omp critical
+    sum += 1;
+  }
 
 Task 9:
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-9$ ./test 
+Outer parallel block: Thread 0 of 2
+Inner parallel block: Thread 0 of 2
+Inner parallel block: Thread 1 of 2
+
+Outer parallel block: Thread 1 of 2
+Inner parallel block: Thread 0 of 2
+Inner parallel block: Thread 1 of 2
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-9$ ./test 
+Outer parallel block: Thread 0 of 2
+Inner parallel block: Thread 0 of 1
+
+Outer parallel block: Thread 1 of 2
+Inner parallel block: Thread 0 of 1
+
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-9$ ./sort_test 5000000 1 0
+N = 5000000
+Parallel enabled = 0
+Before sort: the number 7 occurs 50019 times in the list.
+Sorting list with length 5000000 took   8.244 wall seconds.
+After sort : the number 7 occurs 50019 times in the list.
+OK, list is sorted!
+
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-9$ ./sort_test 5000000 1 1
+N = 5000000
+Parallel enabled = 1
+Before sort: the number 7 occurs 50019 times in the list.
+Sorting list with length 5000000 took   8.130 wall seconds.
+After sort : the number 7 occurs 50019 times in the list.
+OK, list is sorted!
+
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-9$ ./sort_test 5000000 4 0
+N = 5000000
+Parallel enabled = 0
+Before sort: the number 7 occurs 50019 times in the list.
+Sorting list with length 5000000 took   4.235 wall seconds.
+After sort : the number 7 occurs 50019 times in the list.
+OK, list is sorted!
+
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-9$ ./sort_test 5000000 4 1
+N = 5000000
+Parallel enabled = 1
+Before sort: the number 7 occurs 50019 times in the list.
+Sorting list with length 5000000 took   2.242 wall seconds.
+After sort : the number 7 occurs 50019 times in the list.
+OK, list is sorted!
+
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-9$ ./sort_test 5000000 8 0
+N = 5000000
+Parallel enabled = 0
+Before sort: the number 7 occurs 50019 times in the list.
+Sorting list with length 5000000 took   4.356 wall seconds.
+After sort : the number 7 occurs 50019 times in the list.
+OK, list is sorted!
+
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_I/Task-9$ ./sort_test 5000000 8 1
+N = 5000000
+Parallel enabled = 1
+Before sort: the number 7 occurs 50019 times in the list.
+Sorting list with length 5000000 took   1.252 wall seconds.
+After sort : the number 7 occurs 50019 times in the list.
+OK, list is sorted!

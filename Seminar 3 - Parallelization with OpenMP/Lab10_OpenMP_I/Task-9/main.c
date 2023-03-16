@@ -26,18 +26,25 @@ static int count_values(const intType *list, int n, intType x)
 
 int main(int argc, char *argv[])
 {
-  if (argc != 2)
+  if (argc != 4)
   {
-    printf("Please give 1 argument: N (number of elements to sort).\n");
+    printf("Usage: <N> <NThreads> <Para>.\n");
     return -1;
   }
   int N = atoi(argv[1]);
+  int NThreads = atoi(argv[2]);
+  int Para = atoi(argv[3]);
   printf("N = %d\n", N);
   if (N < 1)
   {
     printf("Error: (N < 1).\n");
     return -1;
   }
+
+  omp_set_nested(Para);
+  int para = omp_get_nested();
+  printf("Parallel enabled = %d\n", para);
+
   intType *list_to_sort = (intType *)malloc(N * sizeof(intType));
   // Fill list with random numbers
   int i;
@@ -50,7 +57,8 @@ int main(int argc, char *argv[])
 
   // Sort list
   double time1 = get_wall_seconds();
-  merge_sort(list_to_sort, N);
+  merge_sort(list_to_sort, N, NThreads);
+
   printf("Sorting list with length %d took %7.3f wall seconds.\n", N, get_wall_seconds() - time1);
 
   int count7_again = count_values(list_to_sort, N, 7);

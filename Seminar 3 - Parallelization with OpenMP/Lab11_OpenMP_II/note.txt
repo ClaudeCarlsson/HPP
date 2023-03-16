@@ -1,0 +1,158 @@
+Task 1:
+Overall, the lastprivate clause can be useful 
+when we need to ensure that a variable 
+has a certain value after a parallel 
+region or loop, and we want to avoid 
+race conditions that could occur if 
+multiple threads try to update the value 
+simultaneously.
+
+
+Task 2:
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_II/Task-2$ time ./ompsections 
+funcB() result: x = 2.718282
+funcA() result: x = 1.648721
+
+real    0m2,525s
+user    0m5,038s
+sys     0m0,003s
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_II/Task-2$ time ./ompsections 
+funcA() result: x = 1.648721
+funcB() result: x = 2.718282
+funcC() result: x = 2.718282
+
+real    0m2,531s
+user    0m7,560s
+sys     0m0,003s
+
+
+Task 3:
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_II/Task-3$ time ./simple-loop 
+sum = 19999.749173
+
+real    0m5,027s
+user    0m5,023s
+sys     0m0,004s
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_II/Task-3$ time ./simple-loop 
+sum = 19999.749173
+
+real    0m1,698s
+user    0m5,057s
+sys     0m0,001s
+
+
+Task 4:
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_II/Task-4$ ./loop 8
+Time taken: 1.462390 sec
+sum = 12497500.000000
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_II/Task-4$ ./loop 4
+Time taken: 2.887333 sec
+sum = 12497500.000000
+
+
+Task 5:
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_II/Task-5$ ./reduce 1
+Global sum is: 49999950000000.000000
+
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_II/Task-5$ ./reduce 8
+Global sum is: 49999950000000.000000
+
+
+Task 6:
+Yes less code.
+clca8136@barany:~/HPP/Seminar 3 - Parallelization with OpenMP/Lab10_OpenMP_II/Task-6$ time ./pi
+PI is approx. 3.1415926535898540
+
+real    0m1,259s
+user    0m10,231s
+sys     0m0,009s
+
+
+Task 7: 
+
+N = 80000
+M = 80
+nThreads = 1
+nBytesA = 25600000
+finalSum = 2515060480.000000
+real    0m6,646s
+user    0m6,631s
+sys     0m0,016s
+
+N = 80000
+M = 80
+nThreads = 4
+nBytesA = 25600000
+finalSum = 2515060480.000000
+real    0m1,953s
+user    0m7,163s
+sys     0m0,036s
+
+N = 800
+M = 8000
+nThreads = 1
+nBytesA = 25600000
+finalSum = 2551640320.000000
+real    0m8,004s
+user    0m7,936s
+sys     0m0,068s
+
+N = 800
+M = 8000
+nThreads = 4
+nBytesA = 25600000
+finalSum = 2551640320.000000
+real    0m2,446s
+user    0m9,047s
+sys     0m0,029s
+
+N = 8
+M = 800000
+nThreads = 1
+nBytesA = 25600000
+finalSum = 536870912.000000
+real    0m5,528s
+user    0m5,516s
+sys     0m0,012s
+
+N = 8
+M = 800000
+nThreads = 4
+nBytesA = 25600000
+finalSum = 536870912.000000
+real    0m2,336s
+user    0m8,550s
+sys     0m0,067s
+
+If another thread modifies another variable on the same cache line, 
+it causes the cache line to be invalidated and reloaded 
+into the cache of the other processor, even though the
+other processor is not interested in the variable that
+was modified. This invalidation and reloading of the
+cache line can cause unnecessary cache coherence
+traffic, which can degrade performance.
+
+False sharing can occur when the variables are not actually 
+shared between the threads, but they are located close enough 
+in memory to share a cache line. False sharing can be particularly 
+insidious because it can be difficult to detect and diagnose. 
+It can also be difficult to avoid, especially in large parallel 
+programs where the layout of variables in memory is complex and 
+not always under the control of the programmer.
+
+Task 8:
+
+Nothing
+1) Time = 5.717234  finalSum = 23419161562.499748 
+
+Parallel
+2) Time = 29.772964  finalSum = 23419161562.499748
+
+Parallel + Single
+3) Time = 5.712279  finalSum = 23419161562.499748
+
+Parallel + Single + Task
+4) Time = 1.695418  finalSum = 23419161562.499748

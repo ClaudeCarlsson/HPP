@@ -18,7 +18,7 @@ void bubble_sort(intType *list, int N)
     }
 }
 
-void merge_sort(intType *list_to_sort, int N)
+void merge_sort(intType *list_to_sort, int N, int nThreads)
 {
   if (N == 1)
   {
@@ -35,14 +35,25 @@ void merge_sort(intType *list_to_sort, int N)
     list1[i] = list_to_sort[i];
   for (i = 0; i < n2; i++)
     list2[i] = list_to_sort[n1 + i];
-// Sort list1 and list2
-#pragma omp parallel sections num_threads(2)
+
+// Parallelize this block
+#pragma omp parallel num_threads(nThreads) if (nThreads > 1 && N > 100)
   {
+#pragma omp sections
+    {
 #pragma omp section
-    merge_sort(list1, n1);
+      {
+        // Sort list1
+        merge_sort(list1, n1, nThreads / 2);
+      }
 #pragma omp section
-    merge_sort(list2, n2);
+      {
+        // Sort list2
+        merge_sort(list2, n2, nThreads / 2);
+      }
+    }
   }
+
   // Merge!
   int i1 = 0;
   int i2 = 0;
