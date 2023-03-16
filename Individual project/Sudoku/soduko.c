@@ -65,7 +65,7 @@ bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N
         return true;
     }
 
-    int unassigned_cell = unassigned_cells_idxs[unassigned_cells_amount];
+    int unassigned_cell = unassigned_cells_idxs[unassigned_cells_amount - 1];
     int row = unassigned_cell / N;
     int col = unassigned_cell % N;
 
@@ -74,27 +74,24 @@ bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N
 #pragma omp flush(found_solution)
         if (!found_solution)
         {
-            if (validate(row, col, candidate, N, N_sqrt, board))
+            if (unassigned_cells_amount < 25 && omp_get_max_threads() > 1)
             {
-                if (unassigned_cells_amount < 30)
+                if (validate(row, col, candidate, N, N_sqrt, board))
                 {
                     int new_board[N][N];
-                    for (int i = 0; i < N; i++)
-                    {
-                        memcpy(new_board[i], board[i], N * sizeof(int));
-                    }
+                    memcpy(new_board, board, N * N * sizeof(int));
                     new_board[row][col] = candidate;
                     solve(unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, new_board);
                 }
-                else 
+            }
+            else
+            {
+#pragma omp task firstprivate(board, row, col, candidate)
                 {
-                    #pragma omp task firstprivate(board, row, col, candidate)
+                    if (validate(row, col, candidate, N, N_sqrt, board))
                     {
                         int new_board[N][N];
-                        for (int i = 0; i < N; i++)
-                        {
-                            memcpy(new_board[i], board[i], N * sizeof(int));
-                        }
+                        memcpy(new_board, board, N * N * sizeof(int));
                         new_board[row][col] = candidate;
                         solve(unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, new_board);
                     }
@@ -177,7 +174,7 @@ int main(int argc, char *argv[])
 #pragma omp parallel
     {
 #pragma omp single
-        solve(unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, board);
+        solve(unassigned_cells_idxs, unassigned_cells_amount, N, N_sqrt, board);
 #pragma omp taskwait
     }
 
