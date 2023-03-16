@@ -59,7 +59,6 @@ bool solve(int recursion_depth, int *unassigned_cells_idxs, int unassigned_cells
 // Sodoku solved here
 #pragma omp critical
         {
-            printf("Recursion depth: %d \n", recursion_depth);
             print_board(N, board);
             found_solution = true;
         }
@@ -76,7 +75,7 @@ bool solve(int recursion_depth, int *unassigned_cells_idxs, int unassigned_cells
 #pragma omp flush(found_solution)
         if (!found_solution)
         {
-            if (unassigned_cells_amount < 15)
+            if (unassigned_cells_amount < 20)
             {
                 if (validate(row, col, candidate, N, N_sqrt, board))
                 {
@@ -86,7 +85,7 @@ bool solve(int recursion_depth, int *unassigned_cells_idxs, int unassigned_cells
             }
             else
             {
-#pragma omp task firstprivate(board, row, col, candidate, unassigned_cells_idxs, unassigned_cells_amount, N, N_sqrt)
+#pragma omp task firstprivate(board, row, col)
                 {
                     if (validate(row, col, candidate, N, N_sqrt, board))
                     {
