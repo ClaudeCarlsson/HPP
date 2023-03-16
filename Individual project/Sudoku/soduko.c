@@ -104,7 +104,7 @@ bool solve(int recursion_depth, int *unassigned_cells_idxs, int unassigned_cells
     return false;
 }
 
-bool solve_serrial(int recursion_depth, int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N_sqrt, int board[N][N])
+bool solve_serially(int recursion_depth, int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N_sqrt, int board[N][N])
 {
     if (unassigned_cells_amount == 0)
     {
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
     }
     if(Threads == 1) 
     {
-        solve_serrial(0, unassigned_cells_idxs, unassigned_cells_amount, N, N_sqrt, board);
+        solve_serially(0, unassigned_cells_idxs, unassigned_cells_amount, N, N_sqrt, board);
     }
 
 #pragma omp parallel
