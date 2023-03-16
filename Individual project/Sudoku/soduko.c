@@ -113,7 +113,7 @@ bool solve(int recursion_depth, int row, int col, int **board, int N, int N_sqrt
             }
         }
     }
-#pragma omp taskwait
+    #pragma omp taskwait
     return *found_solution;
 }
 
@@ -178,11 +178,11 @@ int main(int argc, char *argv[])
 
     bool found_solution = false;
 
-#pragma omp parallel
+    #pragma omp parallel
     {
-#pragma omp single
+        #pragma omp single
         solve(0, 0, 0, board, N, N_sqrt, &found_solution);
-#pragma omp taskwait
+        #pragma omp taskwait
     }
 
     printf("Solution found!\n");
