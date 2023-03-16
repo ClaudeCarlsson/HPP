@@ -56,8 +56,8 @@ bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N
 {
     if (unassigned_cells_amount == 0)
     {
-        // Sodoku solved here
-        #pragma omp critical
+// Sodoku solved here
+#pragma omp critical
         {
             print_board(N, board);
             found_solution = true;
@@ -74,9 +74,9 @@ bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N
 #pragma omp flush(found_solution)
         if (!found_solution)
         {
-#pragma omp task firstprivate(board, row, col, candidate)
+            if (validate(row, col, candidate, N, N_sqrt, board))
             {
-                if (validate(row, col, candidate, N, N_sqrt, board))
+                if (unassigned_cells_amount < 30)
                 {
                     int new_board[N][N];
                     for (int i = 0; i < N; i++)
@@ -85,6 +85,19 @@ bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N
                     }
                     new_board[row][col] = candidate;
                     solve(unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, new_board);
+                }
+                else 
+                {
+                    #pragma omp task firstprivate(board, row, col, candidate)
+                    {
+                        int new_board[N][N];
+                        for (int i = 0; i < N; i++)
+                        {
+                            memcpy(new_board[i], board[i], N * sizeof(int));
+                        }
+                        new_board[row][col] = candidate;
+                        solve(unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, new_board);
+                    }
                 }
             }
         }
