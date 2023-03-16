@@ -54,14 +54,9 @@ bool validate(int row, int col, int candidate, int N, int N_sqrt, int board[N][N
 
 bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N_sqrt, int board[N][N])
 {
-
-    if (unassigned_cells_amount % 25 == 0) {
-        printf("Cells left: %d \n", unassigned_cells_amount);
-    }
-
     if (unassigned_cells_amount == 0)
     {
-// Sodoku solved here
+        // Sodoku solved here
         #pragma omp critical
         {
             print_board(N, board);
@@ -89,7 +84,6 @@ bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N
                         memcpy(new_board[i], board[i], N * sizeof(int));
                     }
                     new_board[row][col] = candidate;
-
                     solve(unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, new_board);
                 }
             }
@@ -137,15 +131,7 @@ int main(int argc, char *argv[])
     int N_sqrt = sqrt(N);
     char *input_file = argv[2];
     int Threads = atoi(argv[3]);
-    /*
-        int **board = (int **)malloc(N * sizeof(int *));
-        for (int i = 0; i < N; i++)
-        {
-            board[i] = (int *)malloc(N * sizeof(int));
-            // Initialize board to all zeros
-            memset(board[i], 0, N * sizeof(int));
-        }
-    */
+
     int board[N][N];
 
     if (get_board_from_file(input_file, N, board))
@@ -178,7 +164,7 @@ int main(int argc, char *argv[])
 #pragma omp parallel
     {
 #pragma omp single
-        solve(unassigned_cells_idxs, unassigned_cells_amount, N, N_sqrt, board);
+        solve(unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, board);
 #pragma omp taskwait
     }
 
