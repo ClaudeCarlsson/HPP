@@ -7,7 +7,9 @@
 #include <omp.h>
 #endif
 
-void print_board(int **board, int N)
+found_solution = false;
+
+void print_board(int N, int board[N][N])
 {
     for (int i = 0; i < N; i++)
     {
@@ -20,11 +22,10 @@ void print_board(int **board, int N)
     printf("\n");
 }
 
-bool validate(int **board, int row, int col, int candidate, int N, int N_sqrt)
+bool validate(int row, int col, int candidate, int N, int N_sqrt, int board[N][N])
 {
 
     // Search for duplicate numbers in the rows and columns
-
     for (int i = 0; i < N; i++)
     {
         if (board[row][i] == candidate || board[i][col] == candidate)
@@ -51,73 +52,56 @@ bool validate(int **board, int row, int col, int candidate, int N, int N_sqrt)
     return true;
 }
 
-bool solve(int recursion_depth, int row, int col, int **board, int N, int N_sqrt, bool *found_solution)
+bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N_sqrt, int board[N][N])
 {
-    if (col == N)
+    /*
+    if (unassigned_cells_amount % 25 == 0) {
+        printf("Cells left: %d \n", unassigned_cells_amount);
+    }
+    */
+    if (unassigned_cells_amount == 0)
     {
-        col = 0;
-        row++;
-        if (row == N)
+        // Sodoku solved here
+        #pragma omp critical
         {
-            #pragma omp critical
-            {
-                if (!*found_solution)
-                {
-                    print_board(board, N);
-                    *found_solution = true;
-                }
-            }
-            return true;
+            print_board(N, board);
+            found_solution = true;
         }
+        return true;
     }
 
-    if (board[row][col] != 0)
-    {
-        return solve(recursion_depth + 1, row, col + 1, board, N, N_sqrt, found_solution);
-    }
+    int unassigned_cell = unassigned_cells_idxs[unassigned_cells_amount];
+    int row = unassigned_cell / N;
+    int col = unassigned_cell % N;
 
     for (int candidate = 1; candidate <= N; candidate++)
     {
-        if (validate(board, row, col, candidate, N, N_sqrt))
+        if (validate(row, col, candidate, N, N_sqrt, board))
         {
-            #pragma omp task firstprivate(row, col, candidate) shared(found_solution)
+            #pragma omp flush(found_solution)
+            if (!found_solution)
             {
-                if (!*found_solution)
+                #pragma omp task firstprivate(row, col, candidate)
                 {
-                    int **new_board = (int **)malloc(N * sizeof(int *));
+
+                    int new_board[N][N];
                     for (int i = 0; i < N; i++)
                     {
-                        new_board[i] = (int *)malloc(N * sizeof(int));
-                        memcpy(new_board[i], board[i], N * sizeof(int)); // Copy the contents of the original board to the new
+                        memcpy(new_board[i], board[i], N * sizeof(int));
                     }
-
                     new_board[row][col] = candidate;
-                    if (solve(recursion_depth + 1, row, col + 1, new_board, N, N_sqrt, found_solution))
-                    {
-                        #pragma omp critical
-                        {
-                            if (!*found_solution)
-                            {
-                                print_board(new_board, N);
-                                *found_solution = true;
-                            }
-                        }
-                    }
-
-                    for (int i = 0; i < N; ++i)
-                    {
-                        free(new_board[i]);
-                    }
-                    free(new_board);
+                    
+                    solve(unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, new_board);
                 }
             }
         }
     }
+
     #pragma omp taskwait
-    return *found_solution;
+    return false;
 }
 
-bool get_board_from_file(char *input_file, int **board, int N)
+bool get_board_from_file(char *input_file, int N, int board[N][N])
 {
     FILE *file = fopen(input_file, "r");
     if (!file)
@@ -130,7 +114,7 @@ bool get_board_from_file(char *input_file, int **board, int N)
     {
         for (int j = 0; j < N; j++)
         {
-            if (!fscanf(file, "%d,", &board[i][j]))
+            if (!fscanf(file, "%d, ", &board[i][j]))
             {
                 printf("Error reading file!\n");
                 return false;
@@ -154,7 +138,7 @@ int main(int argc, char *argv[])
     int N_sqrt = sqrt(N);
     char *input_file = argv[2];
     int Threads = atoi(argv[3]);
-
+/*
     int **board = (int **)malloc(N * sizeof(int *));
     for (int i = 0; i < N; i++)
     {
@@ -162,36 +146,45 @@ int main(int argc, char *argv[])
         // Initialize board to all zeros
         memset(board[i], 0, N * sizeof(int));
     }
+*/
+    int board[N][N];
 
-    if (get_board_from_file(input_file, board, N))
+
+    if (get_board_from_file(input_file, N, board))
     {
         printf("Board successfully loaded! \n");
-        print_board(board, N);
+        print_board(N, board);
     }
     else
     {
         printf("Board could not be loaded! \n");
         return 1;
     }
-
+    omp_set_nested(1);
     omp_set_num_threads(Threads);
 
-    bool found_solution = false;
-
-    #pragma omp parallel
+    int *unassigned_cells_idxs = (int *)malloc(N * N * sizeof(int));
+    int unassigned_cells_amount = 0;
+    for (int i = 0; i < N; i++)
     {
-        #pragma omp single
-        solve(0, 0, 0, board, N, N_sqrt, &found_solution);
-        #pragma omp taskwait
+        for (int j = 0; j < N; j++)
+        {
+            if (board[i][j] == 0)
+            {
+                unassigned_cells_idxs[unassigned_cells_amount] = i * N + j;
+                unassigned_cells_amount++;
+            }
+        }
+    }
+
+#pragma omp parallel
+    {
+#pragma omp single
+        solve(unassigned_cells_idxs, unassigned_cells_amount, N, N_sqrt, board);
+#pragma omp taskwait
     }
 
     printf("Solution found!\n");
-
-    for (int i = 0; i < N; i++)
-    {
-        free(board[i]);
-    }
-    free(board);
 
     return 0;
 }
