@@ -198,16 +198,19 @@ int main(int argc, char *argv[])
             }
         }
     }
+
     if(Threads == 1) 
     {
         solve_serially(0, unassigned_cells_idxs, unassigned_cells_amount, N, N_sqrt, board);
-    }
-
-#pragma omp parallel
+    } 
+    else 
     {
-        #pragma omp single
-        solve(0, unassigned_cells_idxs, unassigned_cells_amount, N, N_sqrt, board);
-        #pragma omp taskwait
+    #pragma omp parallel
+        {
+            #pragma omp single
+            solve(0, unassigned_cells_idxs, unassigned_cells_amount, N, N_sqrt, board);
+            #pragma omp taskwait
+        }
     }
 
     printf("Solution found!\n");
