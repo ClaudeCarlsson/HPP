@@ -54,14 +54,14 @@ bool validate(int row, int col, int candidate, int N, int N_sqrt, int board[N][N
 
 bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N_sqrt, int board[N][N])
 {
-    /*
+
     if (unassigned_cells_amount % 25 == 0) {
         printf("Cells left: %d \n", unassigned_cells_amount);
     }
-    */
+
     if (unassigned_cells_amount == 0)
     {
-        // Sodoku solved here
+// Sodoku solved here
         #pragma omp critical
         {
             print_board(N, board);
@@ -76,28 +76,27 @@ bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N
 
     for (int candidate = 1; candidate <= N; candidate++)
     {
-        if (validate(row, col, candidate, N, N_sqrt, board))
+#pragma omp flush(found_solution)
+        if (!found_solution)
         {
-            #pragma omp flush(found_solution)
-            if (!found_solution)
+#pragma omp task firstprivate(board, row, col, candidate)
             {
-                #pragma omp task firstprivate(row, col, candidate)
+                if (validate(row, col, candidate, N, N_sqrt, board))
                 {
-
                     int new_board[N][N];
                     for (int i = 0; i < N; i++)
                     {
                         memcpy(new_board[i], board[i], N * sizeof(int));
                     }
                     new_board[row][col] = candidate;
-                    
+
                     solve(unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, new_board);
                 }
             }
         }
     }
 
-    #pragma omp taskwait
+#pragma omp taskwait
     return false;
 }
 
@@ -138,17 +137,16 @@ int main(int argc, char *argv[])
     int N_sqrt = sqrt(N);
     char *input_file = argv[2];
     int Threads = atoi(argv[3]);
-/*
-    int **board = (int **)malloc(N * sizeof(int *));
-    for (int i = 0; i < N; i++)
-    {
-        board[i] = (int *)malloc(N * sizeof(int));
-        // Initialize board to all zeros
-        memset(board[i], 0, N * sizeof(int));
-    }
-*/
+    /*
+        int **board = (int **)malloc(N * sizeof(int *));
+        for (int i = 0; i < N; i++)
+        {
+            board[i] = (int *)malloc(N * sizeof(int));
+            // Initialize board to all zeros
+            memset(board[i], 0, N * sizeof(int));
+        }
+    */
     int board[N][N];
-
 
     if (get_board_from_file(input_file, N, board))
     {
