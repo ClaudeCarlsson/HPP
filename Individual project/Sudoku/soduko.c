@@ -52,13 +52,14 @@ bool validate(int row, int col, int candidate, int N, int N_sqrt, int board[N][N
     return true;
 }
 
-bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N_sqrt, int board[N][N])
+bool solve(int recursion_depth, int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N_sqrt, int board[N][N])
 {
     if (unassigned_cells_amount == 0)
     {
 // Sodoku solved here
 #pragma omp critical
         {
+            printf("Recursion depth: %d \n", recursion_depth);
             print_board(N, board);
             found_solution = true;
         }
@@ -66,6 +67,7 @@ bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N
     }
 
     int unassigned_cell = unassigned_cells_idxs[unassigned_cells_amount - 1];
+
     int row = unassigned_cell / N;
     int col = unassigned_cell % N;
 
@@ -74,26 +76,24 @@ bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N
 #pragma omp flush(found_solution)
         if (!found_solution)
         {
-            if (unassigned_cells_amount < 25 && omp_get_max_threads() > 1)
+            if (unassigned_cells_amount < 15)
             {
                 if (validate(row, col, candidate, N, N_sqrt, board))
                 {
-                    int new_board[N][N];
-                    memcpy(new_board, board, N * N * sizeof(int));
-                    new_board[row][col] = candidate;
-                    solve(unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, new_board);
+                    board[row][col] = candidate;
+                    solve(recursion_depth + 1, unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, board);
                 }
             }
             else
             {
-#pragma omp task firstprivate(board, row, col, candidate)
+#pragma omp task firstprivate(board, row, col, candidate, unassigned_cells_idxs, unassigned_cells_amount, N, N_sqrt)
                 {
                     if (validate(row, col, candidate, N, N_sqrt, board))
                     {
                         int new_board[N][N];
                         memcpy(new_board, board, N * N * sizeof(int));
                         new_board[row][col] = candidate;
-                        solve(unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, new_board);
+                        solve(recursion_depth + 1, unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, new_board);
                     }
                 }
             }
@@ -101,6 +101,34 @@ bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N
     }
 
 #pragma omp taskwait
+    return false;
+}
+
+bool solve_serrial(int recursion_depth, int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N_sqrt, int board[N][N])
+{
+    if (unassigned_cells_amount == 0)
+    {
+        // Sodoku solved here
+        //printf("Recursion depth: %d \n", recursion_depth);
+        print_board(N, board);
+        found_solution = true;
+        return true;
+    }
+
+    int unassigned_cell = unassigned_cells_idxs[unassigned_cells_amount - 1];
+
+    int row = unassigned_cell / N;
+    int col = unassigned_cell % N;
+
+    for (int candidate = 1; candidate <= N; candidate++)
+    {
+        if (validate(row, col, candidate, N, N_sqrt, board))
+        {
+            board[row][col] = candidate;
+            solve(recursion_depth + 1, unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, board);
+        }
+    }
+
     return false;
 }
 
@@ -154,6 +182,7 @@ int main(int argc, char *argv[])
         printf("Board could not be loaded! \n");
         return 1;
     }
+        
     omp_set_nested(1);
     omp_set_num_threads(Threads);
 
@@ -170,12 +199,16 @@ int main(int argc, char *argv[])
             }
         }
     }
+    if(Threads == 1) 
+    {
+        solve_serrial(0, unassigned_cells_idxs, unassigned_cells_amount, N, N_sqrt, board);
+    }
 
 #pragma omp parallel
     {
-#pragma omp single
-        solve(unassigned_cells_idxs, unassigned_cells_amount, N, N_sqrt, board);
-#pragma omp taskwait
+        #pragma omp single
+        solve(0, unassigned_cells_idxs, unassigned_cells_amount, N, N_sqrt, board);
+        #pragma omp taskwait
     }
 
     printf("Solution found!\n");
