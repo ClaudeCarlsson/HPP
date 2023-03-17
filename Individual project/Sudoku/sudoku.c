@@ -7,7 +7,8 @@
 #include <omp.h>
 #endif
 
-volatile found_solution = false;
+// Gloabl variable for checking if a solution is found
+volatile bool found_solution = false;
 
 bool validate(int row, int col, int candidate, int N, int N_sqrt, int board[N][N])
 {
@@ -24,7 +25,6 @@ bool validate(int row, int col, int candidate, int N, int N_sqrt, int board[N][N
     // Search in the box for duplicate numbers
     int box_row = row - (row % N_sqrt);
     int box_col = col - (col % N_sqrt);
-
     for (int i = 0; i < N_sqrt; i++)
     {
         for (int j = 0; j < N_sqrt; j++)
@@ -36,40 +36,54 @@ bool validate(int row, int col, int candidate, int N, int N_sqrt, int board[N][N
         }
     }
 
+    // The checks has been passed, a possible candidate
     return true;
 }
 
 bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N_sqrt, int board[N][N], int (*solved_board)[N])
 {
+    // Check to see if a solution is found
     if (unassigned_cells_amount == 0)
     {
-// Sodoku solved here
-#pragma omp critical
+        // Sodoku solved here
+        #pragma omp critical
         {
             found_solution = true;
-#pragma omp flush(found_solution)
+            // Flush the variable after writing it to ensure cache coherence
+            #pragma omp flush(found_solution)
+            // Copy a board to print it later
             memcpy(solved_board, board, N * N * sizeof(int));
         }
         return true;
     }
 
+    // Get the cell
     int unassigned_cell = unassigned_cells_idxs[unassigned_cells_amount - 1];
 
+    // Calculate the row and column
     int row = unassigned_cell / N;
     int col = unassigned_cell % N;
-#pragma omp taskgroup
+
+    // Starta a taskgroup
+    #pragma omp taskgroup
     {
+        // Loop the candidates
         for (int candidate = 1; candidate <= N; candidate++)
         {
-#pragma omp flush(found_solution)
+            // Flush the variable before reading it to ensure cache coherence
+            #pragma omp flush(found_solution)
+
+            // Check that no solutions already exists
             if (!found_solution)
             {
                 // To run only serial when 1 thread is enabled, change the if-statement
-                //if (unassigned_cells_amount < 10 || omp_get_max_threads() == 1)
-                if (unassigned_cells_amount < 40 )
+                //if (unassigned_cells_amount < 25 || omp_get_max_threads() == 1)
+                if (unassigned_cells_amount < 25)
                 {
+                    // Validate the candidate
                     if (validate(row, col, candidate, N, N_sqrt, board))
                     {
+                        // Candidate valid
                         board[row][col] = candidate;
                         solve(unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, board, solved_board);
                     }
@@ -77,28 +91,43 @@ bool solve(int *unassigned_cells_idxs, int unassigned_cells_amount, int N, int N
                 }
                 else
                 {
-#pragma omp task firstprivate(board, row, col)
+                    // Start a task
+                    #pragma omp task firstprivate(board, row, col)
                     {
+                        // Validate the candidate
                         if (validate(row, col, candidate, N, N_sqrt, board))
                         {
-#pragma omp cancellation point taskgroup
+                            // Candidate valid
+                            // Check for cancellation
+                            #pragma omp cancellation point taskgroup
+
+                            // Make a copy of the board
                             int new_board[N][N];
                             memcpy(new_board, board, N * N * sizeof(int));
                             new_board[row][col] = candidate;
+
+                            // Recursive call, check if that path solves the board
                             if (solve(unassigned_cells_idxs, unassigned_cells_amount - 1, N, N_sqrt, new_board, solved_board))
                             {
+                                // Board solved, set global flag
                                 found_solution = true;
-#pragma omp flush(found_solution)
-#pragma omp cancel taskgroup
+
+                                // Flush the variable after writing it to ensure cache coherence
+                                #pragma omp flush(found_solution)
+
+                                // Since the board is solved we stop the task group
+                                #pragma omp cancel taskgroup
                             }
                         }
-#pragma omp cancellation point taskgroup
+                        // Check for cancellation
+                        #pragma omp cancellation point taskgroup
                     }
                 }
             }
         }
     }
-#pragma omp taskwait
+    // Wait for all the tasks
+    #pragma omp taskwait
     return false;
 }
 
@@ -163,7 +192,7 @@ void write_board(int N, int board[N][N])
 
 int main(int argc, char *argv[])
 {
-
+    // Read input
     if (argc != 5)
     {
         printf("Usage: %s <N> <Input File> <Threads> <Output 0 or 1>\n", argv[0]);
@@ -177,11 +206,10 @@ int main(int argc, char *argv[])
     int output = atoi(argv[4]);
 
     int board[N][N];
-
     if (get_board_from_file(input_file, N, board))
     {
-        //printf("Board successfully loaded! \n");
-        //print_board(N, board);
+        printf("Board successfully loaded! \n");
+        print_board(N, board);
     }
     else
     {
@@ -189,9 +217,12 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    omp_set_nested(1);
+    // Set the number of threads
+    #ifdef _OPENMP
     omp_set_num_threads(Threads);
+    #endif
 
+    // Find unassigned cells
     int unassigned_cells_amount = 0;
     int *unassigned_cells_idxs = (int *)malloc(N * N * sizeof(int));
     for (int i = 0; i < N; i++)
@@ -205,21 +236,34 @@ int main(int argc, char *argv[])
             }
         }
     }
+    // Make a solved board to print later 
     int solved_board[N][N];
-double start_time = omp_get_wtime();
-#pragma omp parallel
+
+    #ifdef _OPENMP
+    double start_time = omp_get_wtime();
+    #endif
+
+    // Start the parallel region
+    #pragma omp parallel
     {
-#pragma omp single
+        #pragma omp single
         solve(unassigned_cells_idxs, unassigned_cells_amount, N, N_sqrt, board, solved_board);
-#pragma omp taskwait
+        #pragma omp taskwait
     }
-double end_time = omp_get_wtime();
-    printf("%f\n", end_time - start_time);
-    //printf("Solution found!\n");
-    //print_board(N, solved_board);
+    
+    #ifdef _OPENMP
+    double end_time = omp_get_wtime();
+    #endif
+    // Free the allocated memory
+    free(unassigned_cells_idxs);
+
+    printf("Solution found!\n");
+    print_board(N, solved_board);
     if(output) {
         write_board(N, solved_board);
     }
-
+    #ifdef _OPENMP
+    printf("Time it took: %f\n", end_time - start_time);
+    #endif
     return 0;
 }

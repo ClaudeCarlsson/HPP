@@ -1,17 +1,17 @@
 # Compiler flags
-CFLAGS = -Wall -Wextra -Wpedantic -O3 -ffast-math -march=native -fopenmp
+CFLAGS = -O3 -ffast-math -march=native -fopenmp
 
 # Linker flags
 LDFLAGS = -lm -fopenmp
 
 # Source files
-SRC = soduko.c
+SRC = sudoku.c
 
 # Object files
 OBJ = $(SRC:.c=.o)
 
 # Executable name
-EXEC = soduko
+EXEC = sudoku
 
 all: $(EXEC)
 
