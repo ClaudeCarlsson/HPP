@@ -22,4 +22,4 @@ $(EXEC): $(OBJ)
 	gcc $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJ) $(EXEC)
+	rm -f $(OBJ) $(EXEC) solved_board.txt
